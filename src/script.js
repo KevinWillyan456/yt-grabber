@@ -35,6 +35,10 @@ class ScriptBuilder {
     // Checkboxes
     this.embedThumbnail = document.getElementById('embedThumbnail')
     this.noOverwrites = document.getElementById('noOverwrites')
+    this.useCookies = document.getElementById('useCookies')
+
+    // Info boxes
+    this.cookiesInfo = document.getElementById('cookiesInfo')
 
     // Select
     this.jsRuntime = document.getElementById('jsRuntime')
@@ -71,6 +75,10 @@ class ScriptBuilder {
     this.embedThumbnail.addEventListener('change', () => this.updatePreview())
     this.noOverwrites.addEventListener('change', () => this.updatePreview())
     this.jsRuntime.addEventListener('change', () => this.updatePreview())
+    this.useCookies.addEventListener('change', () => {
+      this.cookiesInfo.style.display = this.useCookies.checked ? 'block' : 'none'
+      this.updatePreview()
+    })
 
     // Download type changes
     this.downloadType.forEach((radio) => {
@@ -82,6 +90,8 @@ class ScriptBuilder {
       if (this.videoFormat.value !== 'best') {
         this.showFeedback('⚠️ A sua CPU pode ser usada para processar o vídeo', 'warning', true)
       } else {
+        this.persistentMessage = null
+        this.persistentType = null
         this.feedback.style.display = 'none'
       }
       this.updatePreview()
@@ -117,6 +127,10 @@ class ScriptBuilder {
     } else {
       this.embedThumbnail.checked = false
     }
+
+    // Desmarcar cookies ao mudar tipo (por segurança)
+    this.useCookies.checked = false
+    this.cookiesInfo.style.display = 'none'
 
     // Atualizar outputPath baseado no tipo
     const baseFolder = '%USERPROFILE%\\Downloads\\yt-grabber'
@@ -210,6 +224,11 @@ class ScriptBuilder {
     const runtime = this.jsRuntime.value
     if (runtime !== 'none') {
       commands.push(`--js-runtimes ${runtime}`)
+    }
+
+    // Cookies
+    if (this.useCookies.checked) {
+      commands.push('--cookies cookie.txt')
     }
 
     // URL (sempre por último)
@@ -434,6 +453,8 @@ class ScriptBuilder {
     // Resetar checkboxes
     this.embedThumbnail.checked = false
     this.noOverwrites.checked = true
+    this.useCookies.checked = false
+    this.cookiesInfo.style.display = 'none'
 
     // Limpar mensagem persistente de CPU
     this.persistentMessage = null

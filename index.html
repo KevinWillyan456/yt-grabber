@@ -224,6 +224,65 @@
               vai funcionar na maioria dos casos.</span
             >
           </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="useCookies" />
+              <span>🍪 Usar cookies de autenticação</span>
+            </label>
+            <span class="field-hint"
+              >⚠️ <strong>Avançado:</strong> Para vídeos com restrição de idade ou acesso privado.
+              Requer arquivo cookie.txt na mesma pasta onde você rodará o comando. Pode comprometer
+              sua conta!</span
+            >
+            <div id="cookiesInfo" class="info-box" style="display: none; margin-top: 1rem">
+              <h4>🍪 Como usar cookies (Processo Avançado)</h4>
+              <ol>
+                <li>
+                  Instale a extensão
+                  <a
+                    href="https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Instalar extensão Get cookies.txt LOCALLY no Chrome Web Store"
+                    >"Get cookies.txt LOCALLY"</a
+                  >
+                  no Chrome/Chromium
+                </li>
+                <li>Acesse YouTube e faça login com sua conta</li>
+                <li>Clique na extensão → "Export" para baixar o arquivo de cookies</li>
+                <li><strong>Renomeie o arquivo para "cookie.txt"</strong> (exatamente assim)</li>
+                <li>Abra o terminal <strong>na mesma pasta</strong> onde o cookie.txt está</li>
+                <li>Cole e execute o comando gerado</li>
+              </ol>
+              <p>
+                📖
+                <a
+                  href="https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Acessar documentação oficial de como usar cookies no yt-dlp"
+                  >Documentação oficial</a
+                >
+                |
+                <a
+                  href="https://www.youtube.com/watch?v=DsS1jCDZGek"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Acessar tutorial em vídeo sobre como usar cookies no yt-dlp"
+                  >Tutorial em vídeo</a
+                >
+              </p>
+              <p>
+                <strong>⚠️ Cuidado:</strong> Compartilhar cookies é como compartilhar sua senha!
+              </p>
+              <p>
+                <strong>💡 Dica:</strong> Se estiver usando cookies, você provavelmente vai precisar
+                definir um <strong>JavaScript Runtime</strong> também para resolver desafios de
+                proteção do YouTube.
+              </p>
+            </div>
+          </div>
         </div>
 
         <!-- Painel de Preview -->

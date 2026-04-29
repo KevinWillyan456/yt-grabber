@@ -614,6 +614,13 @@ legend {
   margin-bottom: var(--space-md);
 }
 
+.info-box h4 {
+  font-size: var(--font-size-base);
+  color: var(--color-info);
+  margin-bottom: var(--space-md);
+  font-weight: var(--font-weight-bold);
+}
+
 .info-box ol {
   margin-left: var(--space-lg);
   color: var(--color-text-secondary);
@@ -623,12 +630,30 @@ legend {
   margin-bottom: var(--space-sm);
 }
 
+.info-box p {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-md);
+}
+
 .info-box code {
   background-color: var(--color-secondary);
   padding: var(--space-xs) var(--space-sm);
   border-radius: var(--radius-sm);
   font-family: var(--font-mono);
   color: var(--color-info);
+}
+
+.info-box a {
+  color: var(--color-info);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  transition: color var(--transition-fast);
+  border-bottom: 1px solid var(--color-info);
+}
+
+.info-box a:hover {
+  color: var(--color-primary-light);
+  border-bottom-color: var(--color-primary-light);
 }
 
 /* ===== FEEDBACK ===== */
