@@ -208,6 +208,22 @@
               <span>🛡️ Não sobrescrever arquivos existentes</span>
             </label>
           </div>
+
+          <div class="form-group">
+            <label for="jsRuntime">⚙️ JavaScript Runtime</label>
+            <select id="jsRuntime" class="select-field">
+              <option value="none">Nenhuma (padrão)</option>
+              <option value="deno">Deno (recomendado, 2.0+)</option>
+              <option value="node">Node.js (20+)</option>
+              <option value="bun">Bun (1.0.31+)</option>
+              <option value="quickjs">QuickJS (2023-12-9+)</option>
+            </select>
+            <span class="field-hint"
+              >YouTube usa desafios JavaScript para proteger vídeos. Se escolher uma runtime,
+              garanta que está instalada e no PATH. Se não sabe o que é isso, deixe como "padrão" —
+              vai funcionar na maioria dos casos.</span
+            >
+          </div>
         </div>
 
         <!-- Painel de Preview -->

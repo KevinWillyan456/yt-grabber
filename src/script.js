@@ -36,6 +36,9 @@ class ScriptBuilder {
     this.embedThumbnail = document.getElementById('embedThumbnail')
     this.noOverwrites = document.getElementById('noOverwrites')
 
+    // Select
+    this.jsRuntime = document.getElementById('jsRuntime')
+
     // Groups
     this.videoQualityGroup = document.getElementById('videoQualityGroup')
     this.videoFormatGroup = document.getElementById('videoFormatGroup')
@@ -67,6 +70,7 @@ class ScriptBuilder {
     this.customTemplate.addEventListener('input', () => this.updatePreview())
     this.embedThumbnail.addEventListener('change', () => this.updatePreview())
     this.noOverwrites.addEventListener('change', () => this.updatePreview())
+    this.jsRuntime.addEventListener('change', () => this.updatePreview())
 
     // Download type changes
     this.downloadType.forEach((radio) => {
@@ -200,6 +204,12 @@ class ScriptBuilder {
 
     if (this.noOverwrites.checked) {
       commands.push('-w')
+    }
+
+    // JavaScript Runtime
+    const runtime = this.jsRuntime.value
+    if (runtime !== 'none') {
+      commands.push(`--js-runtimes ${runtime}`)
     }
 
     // URL (sempre por último)
