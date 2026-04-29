@@ -30,11 +30,9 @@ class ScriptBuilder {
     this.outputTemplate = document.getElementById('outputTemplate')
     this.customTemplate = document.getElementById('customTemplate')
     this.templateHint = document.getElementById('templateHint')
+    this.customTemplateOption = document.querySelector('#outputTemplate option[value="custom"]')
 
     // Checkboxes
-    this.keepVideo = document.getElementById('keepVideo')
-    this.writeInfo = document.getElementById('writeInfo')
-    this.writeThumbnail = document.getElementById('writeThumbnail')
     this.embedThumbnail = document.getElementById('embedThumbnail')
     this.noOverwrites = document.getElementById('noOverwrites')
 
@@ -51,13 +49,14 @@ class ScriptBuilder {
     this.feedback = document.getElementById('feedback')
     this.urlError = document.getElementById('url-error')
     this.playlistWarning = document.getElementById('playlist-warning')
+    this.persistentMessage = null
+    this.persistentType = null
   }
 
   attachEventListeners() {
     // Update preview on any change
     this.urlInput.addEventListener('input', () => this.updatePreview())
     this.videoQuality.addEventListener('change', () => this.updatePreview())
-    this.videoFormat.addEventListener('change', () => this.updatePreview())
     this.audioFormat.addEventListener('change', () => this.updatePreview())
     this.audioQuality.addEventListener('change', () => this.updatePreview())
     this.outputPath.addEventListener('input', () => this.updatePreview())
@@ -66,15 +65,22 @@ class ScriptBuilder {
       this.updatePreview()
     })
     this.customTemplate.addEventListener('input', () => this.updatePreview())
-    this.keepVideo.addEventListener('change', () => this.updatePreview())
-    this.writeInfo.addEventListener('change', () => this.updatePreview())
-    this.writeThumbnail.addEventListener('change', () => this.updatePreview())
     this.embedThumbnail.addEventListener('change', () => this.updatePreview())
     this.noOverwrites.addEventListener('change', () => this.updatePreview())
 
     // Download type changes
     this.downloadType.forEach((radio) => {
       radio.addEventListener('change', () => this.handleTypeChange())
+    })
+
+    // Video format selection - aviso sobre CPU
+    this.videoFormat.addEventListener('change', () => {
+      if (this.videoFormat.value !== 'best') {
+        this.showFeedback('⚠️ A sua CPU pode ser usada para processar o vídeo', 'warning', true)
+      } else {
+        this.feedback.style.display = 'none'
+      }
+      this.updatePreview()
     })
 
     // Buttons
@@ -99,8 +105,6 @@ class ScriptBuilder {
     this.videoFormat.disabled = !isVideo
     this.audioFormat.disabled = !isAudio
     this.audioQuality.disabled = !isAudio
-    this.keepVideo.disabled = !isAudio
-    this.writeThumbnail.disabled = !isAudio
     this.embedThumbnail.disabled = !isAudio
 
     // Pré-marcar embedThumbnail para áudio
@@ -170,10 +174,6 @@ class ScriptBuilder {
       if (this.audioQuality.value !== '0') {
         commands.push(`--audio-quality ${this.audioQuality.value}`)
       }
-
-      if (this.keepVideo.checked) {
-        commands.push('-k')
-      }
     } else if (type === 'video') {
       // Recode de formato de vídeo
       if (this.videoFormat.value !== 'best') {
@@ -194,14 +194,6 @@ class ScriptBuilder {
     commands.push(`-o "${template}"`)
 
     // Opções adicionais
-    if (this.writeInfo.checked) {
-      commands.push('--write-info-json')
-    }
-
-    if (this.writeThumbnail.checked) {
-      commands.push('--write-thumbnail')
-    }
-
     if (this.embedThumbnail.checked) {
       commands.push('--embed-thumbnail')
     }
@@ -389,6 +381,22 @@ class ScriptBuilder {
     // Mostrar/esconder aviso de playlist
     this.playlistWarning.style.display = isPlaylist ? 'block' : 'none'
 
+    // Gerenciar opção 'custom' do template em playlists
+    if (this.customTemplateOption) {
+      if (isPlaylist) {
+        // Desabilitar opção custom para playlist
+        this.customTemplateOption.disabled = true
+        // Se estava com custom selecionado, resetar para padrão
+        if (this.outputTemplate.value === 'custom') {
+          this.outputTemplate.value = '%(title)s.%(ext)s'
+          this.toggleCustomTemplate()
+        }
+      } else {
+        // Habilitar opção custom para vídeo único
+        this.customTemplateOption.disabled = false
+      }
+    }
+
     const script = this.buildCommand()
     this.scriptPreview.textContent = script
 
@@ -414,11 +422,12 @@ class ScriptBuilder {
     this.customTemplate.value = ''
 
     // Resetar checkboxes
-    this.keepVideo.checked = false
-    this.writeInfo.checked = false
-    this.writeThumbnail.checked = false
     this.embedThumbnail.checked = false
-    this.noOverwrites.checked = false
+    this.noOverwrites.checked = true
+
+    // Limpar mensagem persistente de CPU
+    this.persistentMessage = null
+    this.persistentType = null
 
     // Atualizar visualização
     this.toggleCustomTemplate()
@@ -451,14 +460,28 @@ class ScriptBuilder {
       })
   }
 
-  showFeedback(message, type) {
+  showFeedback(message, type, persistent = false) {
     this.feedback.textContent = message
     this.feedback.className = `feedback ${type}`
     this.feedback.style.display = 'block'
 
-    setTimeout(() => {
-      this.feedback.style.display = 'none'
-    }, 3000)
+    if (persistent) {
+      // Guardar mensagem persistente para restaurar depois
+      this.persistentMessage = message
+      this.persistentType = type
+    } else {
+      // Se há mensagem persistente, restaurá-la depois
+      const hadPersistent = this.persistentMessage !== null
+      setTimeout(() => {
+        if (hadPersistent) {
+          this.feedback.textContent = this.persistentMessage
+          this.feedback.className = `feedback ${this.persistentType}`
+          this.feedback.style.display = 'block'
+        } else {
+          this.feedback.style.display = 'none'
+        }
+      }, 3000)
+    }
   }
 }
 

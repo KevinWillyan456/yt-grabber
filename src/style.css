@@ -1,8 +1,8 @@
 /* ===== CSS VARIABLES (DRY) ===== */
 :root {
   /* Colors */
-  --color-primary: #ff0000;
-  --color-primary-dark: #cc0000;
+  --color-primary: #d30000;
+  --color-primary-dark: #ad0000;
   --color-primary-light: #ff4444;
   --color-secondary: #282828;
   --color-background: #0f0f0f;
@@ -156,10 +156,9 @@ body {
 .header {
   text-align: center;
   margin-bottom: var(--space-2xl);
-  background: linear-gradient(135deg, #ff0000 0%, #cc0000 50%, #1a1a1a 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, #be0000 50%, #1a1a1a 100%);
   padding: var(--space-2xl) var(--space-lg);
   border-radius: var(--radius-lg);
-  box-shadow: 0 10px 40px rgba(255, 0, 0, 0.3);
   position: relative;
   overflow: hidden;
 }
@@ -310,7 +309,8 @@ body {
   margin-bottom: var(--space-lg);
 }
 
-label {
+label,
+legend {
   display: block;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
@@ -399,6 +399,20 @@ label {
   border-radius: var(--radius-sm);
 }
 
+/* ===== FIELDSET RESET ===== */
+fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+legend {
+  padding: 0;
+  margin: 0;
+  display: block;
+  width: 100%;
+}
+
 /* ===== RADIO GROUP ===== */
 .radio-group {
   display: flex;
@@ -407,11 +421,16 @@ label {
 }
 
 .radio-option {
+  margin-top: var(--space-sm);
   display: flex;
   align-items: center;
   gap: var(--space-sm);
   cursor: pointer;
   user-select: none;
+  border: 2px solid transparent;
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  transition: all var(--transition-base);
 }
 
 .radio-option input[type='radio'] {
@@ -419,6 +438,7 @@ label {
   accent-color: var(--color-primary);
   width: 1.2rem;
   height: 1.2rem;
+  flex-shrink: 0;
 }
 
 .radio-option span {
@@ -430,6 +450,24 @@ label {
 .radio-option input[type='radio']:checked + span {
   color: var(--color-primary);
   font-weight: var(--font-weight-bold);
+}
+
+.radio-option input[type='radio']:checked {
+  box-shadow: none;
+}
+
+.radio-option input[type='radio']:checked ~ * {
+  color: var(--color-primary);
+}
+
+.radio-option input[type='radio']:checked {
+  filter: brightness(1.2);
+}
+
+.radio-option.checked {
+  border-color: var(--color-primary);
+  background: linear-gradient(135deg, rgba(255, 0, 0, 0.1) 0%, rgba(255, 68, 68, 0.05) 100%);
+  box-shadow: 0 0 12px rgba(255, 0, 0, 0.2);
 }
 
 /* ===== CHECKBOX LABEL ===== */
@@ -534,13 +572,13 @@ label {
 }
 
 .btn-reset {
-  background: linear-gradient(135deg, var(--color-warning) 0%, #ff9100 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: white;
   box-shadow: var(--shadow-md);
 }
 
 .btn-reset:hover {
-  background: linear-gradient(135deg, #ff9100 0%, var(--color-warning) 100%);
+  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
   box-shadow: var(--shadow-lg);
   transform: translateY(-2px);
 }
@@ -612,6 +650,12 @@ label {
   background-color: rgba(255, 23, 68, 0.1);
   border: 1px solid var(--color-error);
   color: var(--color-error);
+}
+
+.feedback.warning {
+  background-color: rgba(255, 165, 0, 0.1);
+  border: 1px solid var(--color-warning);
+  color: var(--color-warning);
 }
 
 @keyframes slideIn {

@@ -88,17 +88,21 @@
 
           <!-- Tipo de Download -->
           <div class="form-group">
-            <label for="downloadType">Tipo de Download</label>
-            <div class="radio-group">
-              <label class="radio-option">
-                <input type="radio" name="downloadType" value="video" checked />
-                <span>📹 Vídeo</span>
-              </label>
-              <label class="radio-option">
-                <input type="radio" name="downloadType" value="audio" />
-                <span>🎵 Áudio</span>
-              </label>
-            </div>
+            <fieldset>
+              <legend>Tipo de Download</legend>
+
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input type="radio" name="downloadType" value="video" checked />
+                  <span>📹 Vídeo</span>
+                </label>
+
+                <label class="radio-option">
+                  <input type="radio" name="downloadType" value="audio" />
+                  <span>🎵 Áudio</span>
+                </label>
+              </div>
+            </fieldset>
           </div>
 
           <!-- Qualidade de Vídeo -->
@@ -118,7 +122,7 @@
           <div class="form-group" id="videoFormatGroup">
             <label for="videoFormat">Formato de Vídeo</label>
             <select id="videoFormat" class="select-field">
-              <option value="best">Melhor formato</option>
+              <option value="best">Original</option>
               <option value="mp4">MP4 (H.264)</option>
               <option value="webm">WebM (VP9)</option>
               <option value="mkv">MKV (Múltiplos codecs)</option>
@@ -193,27 +197,6 @@
           <!-- Opções Avançadas -->
           <div class="form-group">
             <label class="checkbox-label">
-              <input type="checkbox" id="keepVideo" />
-              <span>🎞️ Manter vídeo intermediário após converter áudio (-k)</span>
-            </label>
-          </div>
-
-          <div class="form-group">
-            <label class="checkbox-label">
-              <input type="checkbox" id="writeInfo" />
-              <span>📋 Escrever arquivo JSON com metadados</span>
-            </label>
-          </div>
-
-          <div class="form-group">
-            <label class="checkbox-label">
-              <input type="checkbox" id="writeThumbnail" />
-              <span>🖼️ Baixar thumbnail</span>
-            </label>
-          </div>
-
-          <div class="form-group">
-            <label class="checkbox-label">
               <input type="checkbox" id="embedThumbnail" />
               <span>📸 Embutir thumbnail no arquivo (requer ffmpeg)</span>
             </label>
@@ -221,7 +204,7 @@
 
           <div class="form-group">
             <label class="checkbox-label">
-              <input type="checkbox" id="noOverwrites" />
+              <input type="checkbox" id="noOverwrites" checked />
               <span>🛡️ Não sobrescrever arquivos existentes</span>
             </label>
           </div>
