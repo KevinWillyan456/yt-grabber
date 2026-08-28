@@ -307,6 +307,16 @@ class ScriptBuilder {
         }
       }
 
+      // Se é URL de YouTube Shorts (com ou sem parâmetros)
+      const shortsMatch = cleaned.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/)
+      if (shortsMatch) {
+        return {
+          valid: true,
+          url: `https://www.youtube.com/watch?v=${shortsMatch[1]}`,
+          error: '',
+        }
+      }
+
       // URL inválida
       if (cleaned.includes('youtube.com') || cleaned.includes('youtu.be')) {
         return { valid: false, url: '', error: 'URL inválida do YouTube' }
