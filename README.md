@@ -34,6 +34,7 @@
 | **⚡ Preview em Tempo Real** | Syntax highlighting no terminal estilo VS Code                     |
 | **💾 Persistência**          | Configurações salvas no localStorage (vídeo/áudio separados)       |
 | **📎 Drag & Drop**           | Arraste links diretamente para o campo de URL                      |
+| **🎯 Intervalo de Playlist** | Baixe apenas faixas específicas: `1:10`, `1,3,5`, `5:` etc.        |
 | **🔄 Resetar**               | Limpa formulário e configurações salvas com um clique              |
 
 </details>
@@ -159,6 +160,7 @@ irm https://deno.land/install.ps1 | iex
 | Não sobrescrever    | Ativado                  | `-w`                    |
 | JS Runtime          | Node.js                  | `--js-runtimes RUNTIME` |
 | Cookies             | Desativado               | `--cookies cookie.txt`  |
+| Intervalo Playlist  | Vazio (todas)            | `-I "INTERVALO"`        |
 
 </details>
 
@@ -192,6 +194,40 @@ yt-dlp -f "bestaudio/best" -x --audio-format mp3 --audio-quality 320 -P "~\Downl
 
 ```bash
 yt-dlp -f "bestvideo*+bestaudio/best" -P "~\Downloads\yt-grabber" -o "%(title)s.%(ext)s" -w --js-runtimes node --cookies cookie.txt "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+```
+
+</details>
+
+<details>
+<summary><strong>🎯 Playlist — baixar faixas específicas</strong></summary>
+<br />
+
+O campo **Intervalo de Playlist** aceita diversos formatos para selecionar quais itens baixar:
+
+| Formato      | Exemplo  | Descrição                       |
+| :----------- | :------- | :------------------------------ |
+| `inicio:fim` | `1:10`   | Itens do 1 ao 10                |
+| `inicio:`    | `5:`     | A partir do 5° item até o final |
+| `:fim`       | `:10`    | Os 10 primeiros itens           |
+| Lista        | `1,3,5`  | Itens específicos por posição   |
+| Misto        | `1:5,10` | Itens 1 a 5 e o 10              |
+
+**Exemplo — baixar as 10 primeiras músicas de uma playlist:**
+
+```bash
+yt-dlp -f "bestaudio/best" -x --audio-format mp3 --audio-quality 320 -P "~\Downloads\yt-grabber" -o "%(title)s.%(ext)s" --embed-thumbnail -w --js-runtimes node -I "1:10" "https://www.youtube.com/playlist?list=PLxxxx"
+```
+
+**Exemplo — baixar músicas específicas (1, 3 e 5):**
+
+```bash
+yt-dlp -f "bestaudio/best" -x --audio-format mp3 --audio-quality 192 -P "~\Downloads\yt-grabber" -o "%(title)s.%(ext)s" --embed-thumbnail -w --js-runtimes node -I "1,3,5" "https://www.youtube.com/playlist?list=PLxxxx"
+```
+
+**Exemplo — baixar a partir do 5° item:**
+
+```bash
+yt-dlp -f "bestaudio/best" -x --audio-format mp3 --audio-quality 128 -P "~\Downloads\yt-grabber" -o "%(title)s.%(ext)s" --embed-thumbnail -w --js-runtimes node -I "5:" "https://www.youtube.com/playlist?list=PLxxxx"
 ```
 
 </details>
