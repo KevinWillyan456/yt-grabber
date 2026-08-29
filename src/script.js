@@ -1,77 +1,91 @@
-// ===== YT-DLP Script Builder =====
-// Gera comando yt-dlp dinamicamente baseado em inputs do usuário
+// ===== YT-DLP Script Builder — Neon Edition =====
 
-// ===== YEAR INJECTOR =====
-// Atualiza o ano automaticamente no footer
 document.addEventListener('DOMContentLoaded', () => {
-  const currentYearElement = document.getElementById('current-year')
-  if (currentYearElement) {
-    currentYearElement.textContent = new Date().getFullYear()
-  }
+  // Year
+  const yearEl = document.getElementById('current-year')
+  if (yearEl) yearEl.textContent = new Date().getFullYear()
+
+  new ScriptBuilder()
 })
 
 class ScriptBuilder {
   constructor() {
-    this.initElements()
-    this.attachEventListeners()
+    this.STORAGE_KEY_VIDEO = 'ytgrabber_video_settings'
+    this.STORAGE_KEY_AUDIO = 'ytgrabber_audio_settings'
+    this.STORAGE_KEY_TYPE = 'ytgrabber_download_type'
+    this.DEFAULT_PATH = '~\\Downloads\\yt-grabber'
+    this.cacheElements()
+    this.loadType()
+    this.loadSettings()
+    this.bindEvents()
+    this.initSegmentControl()
+    this.initDragDrop()
     this.handleTypeChange()
     this.updatePreview()
   }
 
-  initElements() {
-    // Inputs
+  // ===== CACHE =====
+  cacheElements() {
     this.urlInput = document.getElementById('url')
+    this.urlError = document.getElementById('url-error')
+    this.playlistWarning = document.getElementById('playlist-warning')
+
     this.downloadType = document.getElementsByName('downloadType')
+    this.segmentControl = document.getElementById('typeControl')
+
     this.videoQuality = document.getElementById('videoQuality')
     this.videoFormat = document.getElementById('videoFormat')
     this.audioFormat = document.getElementById('audioFormat')
     this.audioQuality = document.getElementById('audioQuality')
-    this.outputPath = document.getElementById('outputPath')
-    this.outputTemplate = document.getElementById('outputTemplate')
-    this.customTemplate = document.getElementById('customTemplate')
-    this.templateHint = document.getElementById('templateHint')
-    this.customTemplateOption = document.querySelector('#outputTemplate option[value="custom"]')
 
-    // Checkboxes
-    this.embedThumbnail = document.getElementById('embedThumbnail')
-    this.noOverwrites = document.getElementById('noOverwrites')
-    this.useCookies = document.getElementById('useCookies')
-
-    // Info boxes
-    this.cookiesInfo = document.getElementById('cookiesInfo')
-
-    // Select
-    this.jsRuntime = document.getElementById('jsRuntime')
-
-    // Groups
     this.videoQualityGroup = document.getElementById('videoQualityGroup')
     this.videoFormatGroup = document.getElementById('videoFormatGroup')
     this.audioFormatGroup = document.getElementById('audioFormatGroup')
     this.audioQualityGroup = document.getElementById('audioQualityGroup')
 
-    // Output
-    this.scriptPreview = document.getElementById('scriptPreview')
+    this.outputPath = document.getElementById('outputPath')
+    this.outputTemplate = document.getElementById('outputTemplate')
+    this.customTemplate = document.getElementById('customTemplate')
+    this.templateHint = document.getElementById('templateHint')
+    this.customOption = document.querySelector('#outputTemplate option[value="custom"]')
+
+    this.embedThumbnail = document.getElementById('embedThumbnail')
+    this.noOverwrites = document.getElementById('noOverwrites')
+    this.useCookies = document.getElementById('useCookies')
+    this.cookiesInfo = document.getElementById('cookiesInfo')
+    this.jsRuntime = document.getElementById('jsRuntime')
+
+    this.preview = document.getElementById('scriptPreview')
     this.copyBtn = document.getElementById('copyBtn')
     this.resetBtn = document.getElementById('resetBtn')
     this.feedback = document.getElementById('feedback')
-    this.urlError = document.getElementById('url-error')
-    this.playlistWarning = document.getElementById('playlist-warning')
-    this.persistentMessage = null
-    this.persistentType = null
   }
 
-  attachEventListeners() {
-    // Update preview on any change
+  // ===== EVENTS =====
+  bindEvents() {
+    // Text/select inputs
     this.urlInput.addEventListener('input', () => this.updatePreview())
     this.videoQuality.addEventListener('change', () => this.updatePreview())
+    this.videoFormat.addEventListener('change', () => {
+      if (this.videoFormat.value !== 'best') {
+        this.showFeedback('⚠️ A sua CPU pode ser usada para processar o vídeo', 'warning', true)
+      } else {
+        this._persistentMsg = null
+        this._persistentType = null
+        this.feedback.style.display = 'none'
+      }
+      this.updatePreview()
+    })
     this.audioFormat.addEventListener('change', () => this.updatePreview())
     this.audioQuality.addEventListener('change', () => this.updatePreview())
     this.outputPath.addEventListener('input', () => this.updatePreview())
     this.outputTemplate.addEventListener('change', () => {
-      this.toggleCustomTemplate()
+      this.toggleCustom()
       this.updatePreview()
     })
     this.customTemplate.addEventListener('input', () => this.updatePreview())
+
+    // Checkboxes
     this.embedThumbnail.addEventListener('change', () => this.updatePreview())
     this.noOverwrites.addEventListener('change', () => this.updatePreview())
     this.jsRuntime.addEventListener('change', () => this.updatePreview())
@@ -80,453 +94,464 @@ class ScriptBuilder {
       this.updatePreview()
     })
 
-    // Download type changes
-    this.downloadType.forEach((radio) => {
-      radio.addEventListener('change', () => this.handleTypeChange())
-    })
-
-    // Video format selection - aviso sobre CPU
-    this.videoFormat.addEventListener('change', () => {
-      if (this.videoFormat.value !== 'best') {
-        this.showFeedback('⚠️ A sua CPU pode ser usada para processar o vídeo', 'warning', true)
-      } else {
-        this.persistentMessage = null
-        this.persistentType = null
-        this.feedback.style.display = 'none'
-      }
-      this.updatePreview()
-    })
-
     // Buttons
-    this.copyBtn.addEventListener('click', () => this.copyToClipboard())
-    this.resetBtn.addEventListener('click', () => this.resetForm())
+    this.copyBtn.addEventListener('click', () => this.copyCommand())
+    this.resetBtn.addEventListener('click', () => this.resetAll())
   }
 
-  handleTypeChange() {
-    const type = Array.from(this.downloadType).find((r) => r.checked).value
+  // ===== SEGMENT CONTROL =====
+  initSegmentControl() {
+    const btns = this.segmentControl.querySelectorAll('.segment-btn')
+    btns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        btns.forEach((b) => b.classList.remove('active'))
+        btn.classList.add('active')
+        const radio = btn.querySelector('input[type="radio"]')
+        radio.checked = true
+        this.handleTypeChange()
+      })
+    })
+  }
 
-    // Mostrar/esconder grupos baseado no tipo
+  // ===== DRAG & DROP =====
+  initDragDrop() {
+    const input = this.urlInput
+
+    ;['dragenter', 'dragover', 'dragleave', 'drop'].forEach((e) => {
+      document.body.addEventListener(e, (ev) => {
+        ev.preventDefault()
+        ev.stopPropagation()
+      })
+    })
+
+    ;['dragenter', 'dragover'].forEach((e) => {
+      input.addEventListener(e, () => input.classList.add('drop-active'))
+    })
+
+    ;['dragleave', 'drop'].forEach((e) => {
+      input.addEventListener(e, () => input.classList.remove('drop-active'))
+    })
+
+    input.addEventListener('drop', (e) => {
+      const text = (e.dataTransfer || e.originalEvent.dataTransfer).getData('text/plain')
+      if (text) {
+        input.value = text.trim()
+        this.updatePreview()
+        this.showFeedback('📎 Link colado via drag & drop!', 'success')
+      }
+    })
+  }
+
+  // ===== TYPE CHANGE =====
+  handleTypeChange() {
+    // Save current type settings before switching
+    this.saveSettings()
+    const type = this.getType()
     const isVideo = type === 'video'
     const isAudio = type === 'audio'
 
-    this.videoQualityGroup.style.display = isVideo ? 'block' : 'none'
-    this.videoFormatGroup.style.display = isVideo ? 'block' : 'none'
-    this.audioFormatGroup.style.display = isAudio ? 'block' : 'none'
-    this.audioQualityGroup.style.display = isAudio ? 'block' : 'none'
+    this.videoQualityGroup.style.display = isVideo ? '' : 'none'
+    this.videoFormatGroup.style.display = isVideo ? '' : 'none'
+    this.audioFormatGroup.style.display = isAudio ? '' : 'none'
+    this.audioQualityGroup.style.display = isAudio ? '' : 'none'
 
-    // Desabilitar/habilitar campos
     this.videoQuality.disabled = !isVideo
     this.videoFormat.disabled = !isVideo
     this.audioFormat.disabled = !isAudio
     this.audioQuality.disabled = !isAudio
     this.embedThumbnail.disabled = !isAudio
-
-    // Pré-marcar embedThumbnail para áudio
-    if (isAudio) {
-      this.embedThumbnail.checked = true
-    } else {
-      this.embedThumbnail.checked = false
-    }
-
-    // Desmarcar cookies ao mudar tipo (por segurança)
     this.useCookies.checked = false
     this.cookiesInfo.style.display = 'none'
 
-    // Atualizar outputPath baseado no tipo
-    const baseFolder = '%USERPROFILE%\\Downloads\\yt-grabber'
-    const folder = isVideo ? `${baseFolder}\\videos` : `${baseFolder}\\audios`
-    this.outputPath.value = folder
-
+    this.loadSettings()
     this.updatePreview()
   }
 
-  toggleCustomTemplate() {
+  toggleCustom() {
     const isCustom = this.outputTemplate.value === 'custom'
-    this.customTemplate.style.display = isCustom ? 'block' : 'none'
-    this.templateHint.style.display = isCustom ? 'block' : 'none'
+    this.customTemplate.style.display = isCustom ? '' : 'none'
+    this.templateHint.style.display = isCustom ? '' : 'none'
   }
 
-  getDownloadType() {
+  getType() {
     return Array.from(this.downloadType).find((r) => r.checked).value
   }
 
-  buildFormatString() {
-    const type = this.getDownloadType()
-    const videoQuality = this.videoQuality.value
+  // ===== BUILD FORMAT =====
+  buildFormat() {
+    const type = this.getType()
+    const q = this.videoQuality.value
 
-    if (type === 'audio') {
-      // Áudio puro - deixa o yt-dlp escolher o melhor
-      return 'bestaudio/best'
-    }
+    if (type === 'audio') return 'bestaudio/best'
 
-    if (type === 'video') {
-      // Vídeo com qualidade específica
-      if (videoQuality !== 'best' && videoQuality !== 'worst') {
-        // Se altura específica (1080, 720, etc)
-        return `bestvideo[height<=${videoQuality}]+bestaudio/best`
-      } else if (videoQuality === 'worst') {
-        return 'worstvideo+bestaudio/best'
-      }
-      // Melhor disponível
-      return 'bestvideo*+bestaudio/best'
-    }
-
+    if (q === 'worst') return 'worstvideo+bestaudio/best'
+    if (q !== 'best') return `bestvideo[height<=${q}]+bestaudio/best`
     return 'bestvideo*+bestaudio/best'
   }
 
-  buildCommandArray() {
-    const type = this.getDownloadType()
-    const urlValidation = this.normalizeYouTubeUrl(this.urlInput.value)
-    const url = urlValidation.url || 'URL_INVALIDA'
-    const commands = []
+  // ===== BUILD COMMAND =====
+  buildCommand() {
+    const type = this.getType()
+    const val = this.normalizeUrl(this.urlInput.value)
+    const url = val.url || 'https://www.youtube.com/watch?v=...'
+    const args = []
 
-    // Formato
-    const formatStr = this.buildFormatString()
-    commands.push(`-f "${formatStr}"`)
+    args.push(`-f "${this.buildFormat()}"`)
 
-    // Extração de áudio
     if (type === 'audio') {
-      commands.push('-x')
-      commands.push(`--audio-format ${this.audioFormat.value}`)
-
+      args.push('-x')
+      args.push(`--audio-format ${this.audioFormat.value}`)
       if (this.audioQuality.value !== '0') {
-        commands.push(`--audio-quality ${this.audioQuality.value}`)
+        args.push(`--audio-quality ${this.audioQuality.value}`)
       }
-    } else if (type === 'video') {
-      // Recode de formato de vídeo
-      if (this.videoFormat.value !== 'best') {
-        commands.push(`--recode-video ${this.videoFormat.value}`)
-      }
+    } else if (this.videoFormat.value !== 'best') {
+      args.push(`--recode-video ${this.videoFormat.value}`)
     }
 
-    // Output path
-    if (this.outputPath.value && this.outputPath.value.trim()) {
-      commands.push(`-P "${this.outputPath.value}"`)
+    if (this.outputPath.value.trim()) {
+      args.push(`-P "${this.outputPath.value}"`)
     }
 
-    // Output template
-    const template =
+    const tmpl =
       this.outputTemplate.value === 'custom'
         ? this.customTemplate.value || '%(title)s.%(ext)s'
         : this.outputTemplate.value
-    commands.push(`-o "${template}"`)
+    args.push(`-o "${tmpl}"`)
 
-    // Opções adicionais
-    if (this.embedThumbnail.checked) {
-      commands.push('--embed-thumbnail')
-    }
+    if (this.embedThumbnail.checked) args.push('--embed-thumbnail')
+    if (this.noOverwrites.checked) args.push('-w')
 
-    if (this.noOverwrites.checked) {
-      commands.push('-w')
-    }
+    const rt = this.jsRuntime.value
+    if (rt !== 'none') args.push(`--js-runtimes ${rt}`)
+    if (this.useCookies.checked) args.push('--cookies cookie.txt')
 
-    // JavaScript Runtime
-    const runtime = this.jsRuntime.value
-    if (runtime !== 'none') {
-      commands.push(`--js-runtimes ${runtime}`)
-    }
-
-    // Cookies
-    if (this.useCookies.checked) {
-      commands.push('--cookies cookie.txt')
-    }
-
-    // URL (sempre por último)
-    commands.push(`"${url}"`)
-
-    return commands
+    args.push(`"${url}"`)
+    return `yt-dlp ${args.join(' ')}`
   }
 
-  buildCommand() {
-    // Para preview: comando em linha única (funciona no PowerShell)
-    const commands = this.buildCommandArray()
-    return `yt-dlp ${commands.join(' ')}`
+  // ===== SYNTAX HIGHLIGHT =====
+  renderPreview(command) {
+    const parts = command.split(' ')
+    const html = parts
+      .map((p, i) => {
+        const esc = this.esc(p)
+        if (i === 0) return `<span class="syn-cmd">${esc}</span>`
+        if (p.startsWith('-')) return `<span class="syn-flag">${esc}</span>`
+        if (p.startsWith('"http') || p.startsWith('"INVALID'))
+          return `<span class="syn-url">${esc}</span>`
+        if (p.startsWith('"')) return `<span class="syn-value">${esc}</span>`
+        return `<span class="syn-value">${esc}</span>`
+      })
+      .join(' ')
+
+    this.preview.innerHTML = html + '<span class="cursor"></span>'
   }
 
-  normalizeYouTubeUrl(input) {
-    if (!input || !input.trim()) {
-      return { valid: false, url: '', error: 'URL vazia' }
-    }
-
-    input = input.trim()
-
-    // Valida e normaliza URL completa HTTP(S)
-    if (input.startsWith('http://') || input.startsWith('https://')) {
-      // Remove parâmetros extras de playlist (como &si=...)
-      let cleaned = input
-
-      // Se é URL de playlist, remove tudo após &
-      if (cleaned.includes('playlist?list=')) {
-        const playlistMatch = cleaned.match(/playlist\?list=([a-zA-Z0-9_-]+)/)
-        if (playlistMatch) {
-          return {
-            valid: true,
-            url: `https://www.youtube.com/playlist?list=${playlistMatch[1]}`,
-            error: '',
-          }
-        }
-      }
-
-      // Se é URL de vídeo com playlist, pega só o vídeo
-      const videoIdMatch = cleaned.match(/[?&]v=([a-zA-Z0-9_-]{11})/)
-      const playlistMatch = cleaned.match(/[?&]list=([a-zA-Z0-9_-]+)/)
-
-      if (videoIdMatch && playlistMatch) {
-        return {
-          valid: true,
-          url: `https://www.youtube.com/watch?v=${videoIdMatch[1]}`,
-          error: '',
-        }
-      }
-
-      // Se é apenas vídeo
-      if (videoIdMatch) {
-        return {
-          valid: true,
-          url: `https://www.youtube.com/watch?v=${videoIdMatch[1]}`,
-          error: '',
-        }
-      }
-
-      // Se é apenas playlist (sem parâmetros extras)
-      if (playlistMatch) {
-        return {
-          valid: true,
-          url: `https://www.youtube.com/playlist?list=${playlistMatch[1]}`,
-          error: '',
-        }
-      }
-
-      // Se é URL curta youtu.be/ID (com ou sem parâmetros como ?si=...)
-      const shortUrlMatch = cleaned.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/)
-      if (shortUrlMatch) {
-        return {
-          valid: true,
-          url: `https://www.youtube.com/watch?v=${shortUrlMatch[1]}`,
-          error: '',
-        }
-      }
-
-      // Se é URL de YouTube Shorts (com ou sem parâmetros)
-      const shortsMatch = cleaned.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/)
-      if (shortsMatch) {
-        return {
-          valid: true,
-          url: `https://www.youtube.com/watch?v=${shortsMatch[1]}`,
-          error: '',
-        }
-      }
-
-      // URL inválida
-      if (cleaned.includes('youtube.com') || cleaned.includes('youtu.be')) {
-        return { valid: false, url: '', error: 'URL inválida do YouTube' }
-      }
-
-      return { valid: false, url: '', error: 'URL não é do YouTube' }
-    }
-
-    // Detecta ID puro de vídeo (exatamente 11 caracteres)
-    const videoIdPattern = /^[a-zA-Z0-9_-]{11}$/
-    if (videoIdPattern.test(input)) {
-      return {
-        valid: true,
-        url: `https://www.youtube.com/watch?v=${input}`,
-        error: '',
-      }
-    }
-
-    // Detecta youtu.be/ID
-    const shortUrlPattern = /^youtu\.be\/([a-zA-Z0-9_-]{11})$/
-    const shortMatch = input.match(shortUrlPattern)
-    if (shortMatch) {
-      return {
-        valid: true,
-        url: `https://www.youtube.com/watch?v=${shortMatch[1]}`,
-        error: '',
-      }
-    }
-
-    // Detecta playlist ID (PLxxxx...)
-    const playlistIdPattern = /^(PL[a-zA-Z0-9_-]+)$/
-    if (playlistIdPattern.test(input)) {
-      return {
-        valid: true,
-        url: `https://www.youtube.com/playlist?list=${input}`,
-        error: '',
-      }
-    }
-
-    // Detecta watch?v=ID (sem protocolo)
-    const watchPattern = /^watch\?v=([a-zA-Z0-9_-]{11})$/
-    if (watchPattern.test(input)) {
-      const match = input.match(watchPattern)
-      return {
-        valid: true,
-        url: `https://www.youtube.com/watch?v=${match[1]}`,
-        error: '',
-      }
-    }
-
-    // Detecta playlist?list= (sem protocolo)
-    const playlistPattern = /^playlist\?list=([a-zA-Z0-9_-]+)$/
-    if (playlistPattern.test(input)) {
-      const match = input.match(playlistPattern)
-      return {
-        valid: true,
-        url: `https://www.youtube.com/playlist?list=${match[1]}`,
-        error: '',
-      }
-    }
-
-    // Se não reconhecer
-    return { valid: false, url: '', error: 'Formato não reconhecido' }
+  esc(s) {
+    const d = document.createElement('div')
+    d.appendChild(document.createTextNode(s))
+    return d.innerHTML
   }
 
+  // ===== VALIDATION =====
   isValid() {
-    // Valida se URL não está vazia
-    const urlValue = this.urlInput.value.trim()
-    if (!urlValue) {
-      return false
-    }
-
-    // Valida formato da URL
-    const urlValidation = this.normalizeYouTubeUrl(urlValue)
-    if (!urlValidation.valid) {
-      return false
-    }
-
-    // Valida output path não vazio
-    const outputPath = this.outputPath.value.trim()
-    if (!outputPath) {
-      return false
-    }
-
+    const v = this.urlInput.value.trim()
+    if (!v) return false
+    const u = this.normalizeUrl(v)
+    if (!u.valid) return false
+    if (!this.outputPath.value.trim()) return false
     return true
   }
 
+  // ===== UPDATE PREVIEW =====
   updatePreview() {
-    // Validar URL e mostrar erros
-    const urlValue = this.urlInput.value.trim()
+    const val = this.urlInput.value.trim()
     let isPlaylist = false
 
-    if (urlValue) {
-      const urlValidation = this.normalizeYouTubeUrl(urlValue)
-      if (!urlValidation.valid) {
-        this.urlError.textContent = `❌ ${urlValidation.error}`
+    if (val) {
+      const u = this.normalizeUrl(val)
+      if (!u.valid) {
+        this.urlError.textContent = `❌ ${u.error}`
         this.urlError.style.display = 'block'
       } else {
         this.urlError.style.display = 'none'
       }
+      // Detect real playlists (PLxxx), but ignore radio/mix (RDxxx)
+      const listMatch = (u.url || val).match(/[?&]list=([a-zA-Z0-9_-]+)/)
+      const listId = listMatch ? listMatch[1] : null
+      const isRealPlaylist = listId && !listId.startsWith('RD')
 
-      // Detecta se é uma playlist
       isPlaylist =
-        urlValidation.url.includes('playlist?list=') ||
-        urlValue.match(/^PL[a-zA-Z0-9_-]+$/) ||
-        urlValue.includes('playlist?list=')
+        u.url?.includes('playlist?list=') ||
+        isRealPlaylist ||
+        /^PL[a-zA-Z0-9_-]+$/.test(val) ||
+        val.includes('playlist?list=')
     } else {
       this.urlError.style.display = 'none'
     }
 
-    // Mostrar/esconder aviso de playlist
     this.playlistWarning.style.display = isPlaylist ? 'block' : 'none'
 
-    // Gerenciar opção 'custom' do template em playlists
-    if (this.customTemplateOption) {
-      if (isPlaylist) {
-        // Desabilitar opção custom para playlist
-        this.customTemplateOption.disabled = true
-        // Se estava com custom selecionado, resetar para padrão
-        if (this.outputTemplate.value === 'custom') {
-          this.outputTemplate.value = '%(title)s.%(ext)s'
-          this.toggleCustomTemplate()
-        }
-      } else {
-        // Habilitar opção custom para vídeo único
-        this.customTemplateOption.disabled = false
+    if (this.customOption) {
+      this.customOption.disabled = isPlaylist
+      if (isPlaylist && this.outputTemplate.value === 'custom') {
+        this.outputTemplate.value = '%(title)s.%(ext)s'
+        this.toggleCustom()
       }
     }
 
-    const script = this.buildCommand()
-    this.scriptPreview.textContent = script
+    const cmd = this.buildCommand()
+    this.renderPreview(cmd)
+    this.copyBtn.disabled = !this.isValid()
 
-    // Atualizar estado dos botões
-    const isValid = this.isValid()
-    this.copyBtn.disabled = !isValid
+    // Persist settings on every change
+    this.saveSettings()
   }
 
-  resetForm() {
-    // Resetar inputs de texto
+  // ===== URL NORMALIZER =====
+  normalizeUrl(input) {
+    if (!input || !input.trim()) return { valid: false, url: '', error: 'URL vazia' }
+    input = input.trim()
+
+    // Auto-add protocol if missing
+    if (!input.startsWith('http://') && !input.startsWith('https://')) {
+      if (input.startsWith('youtube.com/') || input.startsWith('youtu.be/')) {
+        input = 'https://' + input
+      }
+    }
+
+    if (input.startsWith('http://') || input.startsWith('https://')) {
+      const c = input
+
+      if (c.includes('playlist?list=')) {
+        const m = c.match(/playlist\?list=([a-zA-Z0-9_-]+)/)
+        if (m)
+          return { valid: true, url: `https://www.youtube.com/playlist?list=${m[1]}`, error: '' }
+      }
+
+      const vid = c.match(/[?&]v=([a-zA-Z0-9_-]{11})/)
+      const pl = c.match(/[?&]list=([a-zA-Z0-9_-]+)/)
+
+      // watch?v=ID&list=... — handle based on list type
+      if (vid && pl) {
+        const listId = pl[1]
+        // RD = radio/mix (auto-generated) → treat as single video
+        if (listId.startsWith('RD')) {
+          return { valid: true, url: `https://www.youtube.com/watch?v=${vid[1]}`, error: '' }
+        }
+        // Real playlist → keep full URL so yt-dlp downloads the playlist
+        return {
+          valid: true,
+          url: `https://www.youtube.com/watch?v=${vid[1]}&list=${listId}`,
+          error: '',
+        }
+      }
+      if (vid) return { valid: true, url: `https://www.youtube.com/watch?v=${vid[1]}`, error: '' }
+      if (pl) {
+        // Standalone playlist URL
+        return { valid: true, url: `https://www.youtube.com/playlist?list=${pl[1]}`, error: '' }
+      }
+
+      const short = c.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/)
+      if (short)
+        return { valid: true, url: `https://www.youtube.com/watch?v=${short[1]}`, error: '' }
+
+      const shorts = c.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/)
+      if (shorts)
+        return { valid: true, url: `https://www.youtube.com/watch?v=${shorts[1]}`, error: '' }
+
+      if (c.includes('youtube.com') || c.includes('youtu.be'))
+        return { valid: false, url: '', error: 'URL inválida do YouTube' }
+
+      return { valid: false, url: '', error: 'URL não é do YouTube' }
+    }
+
+    if (/^[a-zA-Z0-9_-]{11}$/.test(input))
+      return { valid: true, url: `https://www.youtube.com/watch?v=${input}`, error: '' }
+
+    const sm = input.match(/^youtu\.be\/([a-zA-Z0-9_-]{11})$/)
+    if (sm) return { valid: true, url: `https://www.youtube.com/watch?v=${sm[1]}`, error: '' }
+
+    if (/^PL[a-zA-Z0-9_-]+$/.test(input))
+      return { valid: true, url: `https://www.youtube.com/playlist?list=${input}`, error: '' }
+
+    const wm = input.match(/^watch\?v=([a-zA-Z0-9_-]{11})$/)
+    if (wm) return { valid: true, url: `https://www.youtube.com/watch?v=${wm[1]}`, error: '' }
+
+    const pm = input.match(/^playlist\?list=([a-zA-Z0-9_-]+)$/)
+    if (pm) return { valid: true, url: `https://www.youtube.com/playlist?list=${pm[1]}`, error: '' }
+
+    return { valid: false, url: '', error: 'Formato não reconhecido' }
+  }
+
+  // ===== LOCALSTORAGE =====
+  saveSettings() {
+    const type = this.getType()
+    localStorage.setItem(this.STORAGE_KEY_TYPE, type)
+    const key = type === 'video' ? this.STORAGE_KEY_VIDEO : this.STORAGE_KEY_AUDIO
+    const settings = {
+      outputPath: this.outputPath.value,
+      outputTemplate: this.outputTemplate.value,
+      customTemplate: this.customTemplate.value,
+      jsRuntime: this.jsRuntime.value,
+      noOverwrites: this.noOverwrites.checked,
+      useCookies: this.useCookies.checked,
+    }
+    if (type === 'video') {
+      settings.videoQuality = this.videoQuality.value
+      settings.videoFormat = this.videoFormat.value
+    } else {
+      settings.audioFormat = this.audioFormat.value
+      settings.audioQuality = this.audioQuality.value
+      settings.embedThumbnail = this.embedThumbnail.checked
+    }
+    localStorage.setItem(key, JSON.stringify(settings))
+  }
+
+  loadSettings() {
+    const type = this.getType()
+    const key = type === 'video' ? this.STORAGE_KEY_VIDEO : this.STORAGE_KEY_AUDIO
+    const defaults = {
+      outputPath: this.DEFAULT_PATH,
+      outputTemplate: '%(title)s.%(ext)s',
+      customTemplate: '',
+      jsRuntime: 'node',
+      noOverwrites: true,
+      useCookies: false,
+    }
+    if (type === 'video') {
+      defaults.videoQuality = 'best'
+      defaults.videoFormat = 'best'
+    } else {
+      defaults.audioFormat = 'mp3'
+      defaults.audioQuality = '128'
+      defaults.embedThumbnail = true
+    }
+
+    let saved = {}
+    try {
+      const raw = localStorage.getItem(key)
+      if (raw) saved = JSON.parse(raw)
+    } catch {
+      /* ignore */
+    }
+
+    const s = { ...defaults, ...saved }
+    this.outputPath.value = s.outputPath
+    this.outputTemplate.value = s.outputTemplate
+    this.customTemplate.value = s.customTemplate
+    this.jsRuntime.value = s.jsRuntime
+    this.noOverwrites.checked = s.noOverwrites
+    this.useCookies.checked = s.useCookies
+    this.cookiesInfo.style.display = s.useCookies ? 'block' : 'none'
+
+    if (type === 'video') {
+      this.videoQuality.value = s.videoQuality
+      this.videoFormat.value = s.videoFormat
+      this.embedThumbnail.checked = false
+    } else {
+      this.audioFormat.value = s.audioFormat
+      this.audioQuality.value = s.audioQuality
+      this.embedThumbnail.checked = true
+    }
+
+    this.toggleCustom()
+  }
+
+  // ===== LOAD TYPE =====
+  loadType() {
+    const saved = localStorage.getItem(this.STORAGE_KEY_TYPE)
+    if (saved === 'audio') {
+      document.querySelector('input[name="downloadType"][value="audio"]').checked = true
+      this.segmentControl.querySelectorAll('.segment-btn').forEach((b) => {
+        b.classList.toggle('active', b.dataset.value === 'audio')
+      })
+    }
+  }
+
+  // ===== COPY =====
+  copyCommand() {
+    if (!this.isValid()) {
+      this.showFeedback('❌ Preencha a URL do vídeo!', 'error')
+      return
+    }
+
+    const text = this.preview.textContent
+
+    const onSuccess = () => {
+      this.copyBtn.classList.add('copied')
+      const orig = this.copyBtn.innerHTML
+      this.copyBtn.innerHTML = '✅ Copiado!'
+      setTimeout(() => {
+        this.copyBtn.classList.remove('copied')
+        this.copyBtn.innerHTML = orig
+      }, 2000)
+      this.showFeedback('✅ Comando copiado!', 'success')
+    }
+
+    navigator.clipboard
+      .writeText(text)
+      .then(onSuccess)
+      .catch(() => {
+        const ta = document.createElement('textarea')
+        ta.value = text
+        document.body.appendChild(ta)
+        ta.select()
+        document.execCommand('copy')
+        document.body.removeChild(ta)
+        onSuccess()
+      })
+  }
+
+  // ===== RESET =====
+  resetAll() {
     this.urlInput.value = ''
-    this.outputPath.value = '%USERPROFILE%\\Downloads\\yt-grabber\\videos'
+    localStorage.removeItem(this.STORAGE_KEY_VIDEO)
+    localStorage.removeItem(this.STORAGE_KEY_AUDIO)
+    localStorage.removeItem(this.STORAGE_KEY_TYPE)
 
-    // Resetar radio buttons (video padrão)
     document.querySelector('input[name="downloadType"][value="video"]').checked = true
+    this.segmentControl.querySelectorAll('.segment-btn').forEach((b) => {
+      b.classList.toggle('active', b.dataset.value === 'video')
+    })
 
-    // Resetar selects
     this.videoQuality.value = 'best'
     this.videoFormat.value = 'best'
     this.audioFormat.value = 'mp3'
     this.audioQuality.value = '128'
+    this.outputPath.value = this.DEFAULT_PATH
     this.outputTemplate.value = '%(title)s.%(ext)s'
     this.customTemplate.value = ''
 
-    // Resetar checkboxes
     this.embedThumbnail.checked = false
     this.noOverwrites.checked = true
     this.useCookies.checked = false
     this.cookiesInfo.style.display = 'none'
+    this.jsRuntime.value = 'node'
 
-    // Limpar mensagem persistente de CPU
-    this.persistentMessage = null
-    this.persistentType = null
+    this._persistentMsg = null
+    this._persistentType = null
 
-    // Atualizar visualização
-    this.toggleCustomTemplate()
-    this.handleTypeChange()
-    this.showFeedback('🔄 Formulário redefinido!', 'success')
+    this.toggleCustom()
+    this.updatePreview()
+    this.showFeedback('🔄 Formulário resetado!', 'success')
   }
 
-  copyToClipboard() {
-    if (!this.isValid()) {
-      this.showFeedback('❌ Preencha a URL do vídeo e o caminho de saída!', 'error')
-      return
-    }
-
-    const script = this.scriptPreview.textContent
-
-    navigator.clipboard
-      .writeText(script)
-      .then(() => {
-        this.showFeedback('✅ Script copiado para clipboard!', 'success')
-      })
-      .catch(() => {
-        // Fallback para navegadores antigos
-        const textarea = document.createElement('textarea')
-        textarea.value = script
-        document.body.appendChild(textarea)
-        textarea.select()
-        document.execCommand('copy')
-        document.body.removeChild(textarea)
-        this.showFeedback('✅ Script copiado para clipboard!', 'success')
-      })
-  }
-
-  showFeedback(message, type, persistent = false) {
-    this.feedback.textContent = message
+  // ===== FEEDBACK =====
+  showFeedback(msg, type, persistent = false) {
+    this.feedback.textContent = msg
     this.feedback.className = `feedback ${type}`
     this.feedback.style.display = 'block'
 
     if (persistent) {
-      // Guardar mensagem persistente para restaurar depois
-      this.persistentMessage = message
-      this.persistentType = type
+      this._persistentMsg = msg
+      this._persistentType = type
     } else {
-      // Se há mensagem persistente, restaurá-la depois
-      const hadPersistent = this.persistentMessage !== null
+      const hadPersistent = this._persistentMsg !== null
       setTimeout(() => {
         if (hadPersistent) {
-          this.feedback.textContent = this.persistentMessage
-          this.feedback.className = `feedback ${this.persistentType}`
+          this.feedback.textContent = this._persistentMsg
+          this.feedback.className = `feedback ${this._persistentType}`
           this.feedback.style.display = 'block'
         } else {
           this.feedback.style.display = 'none'
@@ -535,8 +560,3 @@ class ScriptBuilder {
     }
   }
 }
-
-// Inicializar quando DOM estiver pronto
-document.addEventListener('DOMContentLoaded', () => {
-  new ScriptBuilder()
-})

@@ -3,240 +3,232 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>YT Grabber</title>
+    <title>YT Grabber — Comandos yt-dlp</title>
     <link rel="icon" href="favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="src/style.css" />
   </head>
   <body>
-    <div class="container">
-      <!-- Banner de Dependências -->
-      <div class="warning-banner">
-        <div class="banner-icon">⚠️</div>
-        <div class="banner-content">
-          <h3>Dependências Obrigatórias</h3>
-          <p>
-            Este gerador requer <strong>yt-dlp</strong> e <strong>ffmpeg</strong> instalados no seu
-            sistema. Acesse os links abaixo para baixar e instalar:
-          </p>
-          <div class="install-commands">
-            <a
-              href="https://github.com/yt-dlp/yt-dlp"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="dep-link"
-              aria-label="Baixar yt-dlp no GitHub"
-              >📥 <span>yt-dlp</span></a
-            >
-            <a
-              href="https://ffmpeg.org/download.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="dep-link"
-              aria-label="Baixar FFmpeg no site oficial"
-              >📥 <span>FFmpeg</span></a
-            >
-          </div>
-          <p class="banner-note">
-            ⚠️ <strong>Importante:</strong> Após instalar, adicione os programas ao PATH do seu
-            sistema para acessá-los pelo terminal.
-          </p>
+    <!-- Background layers -->
+    <div class="mesh-bg"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+    <div class="dot-grid"></div>
+
+    <div class="page-wrapper">
+      <!-- Hero -->
+      <section class="hero">
+        <div class="hero-chip">BUILDER</div>
+        <h1>
+          Gerador de<br />
+          <span class="gradient-text">comandos yt-dlp</span>
+        </h1>
+        <p class="hero-desc">
+          Monte seu comando de download sem decorar sintaxe. Configure, copie e cole no terminal.
+        </p>
+        <div class="hero-tags">
+          <span class="hero-tag">📹 Vídeo</span>
+          <span class="hero-tag">🎵 Áudio</span>
+          <span class="hero-tag">🔄 Conversão</span>
+          <span class="hero-tag">📷 Thumbnails</span>
+        </div>
+      </section>
+
+      <!-- Deps Banner -->
+      <div class="deps-banner">
+        <span class="deps-icon">⚠️</span>
+        <p class="deps-text">
+          Requer <strong>yt-dlp</strong> e <strong>ffmpeg</strong> instalados e no PATH do sistema.
+        </p>
+        <div class="deps-links">
+          <a href="https://github.com/yt-dlp/yt-dlp" target="_blank" rel="noopener noreferrer">
+            📥 yt-dlp
+          </a>
+          <a href="https://ffmpeg.org/download.html" target="_blank" rel="noopener noreferrer">
+            🎬 FFmpeg
+          </a>
         </div>
       </div>
 
-      <header class="header">
-        <div class="header-content">
-          <div class="header-badge">⚡ BUILDER</div>
-          <h1>🎬 YT Grabber</h1>
-          <p class="header-subtitle">Construtor visual de comandos para <strong>yt-dlp</strong></p>
-          <p class="header-description">
-            Gere comandos personalizados de download e conversão de vídeos sem precisar decorar
-            sintaxe. Interface intuitiva, preview em tempo real.
-          </p>
-          <div class="header-features">
-            <span class="feature-tag">📹 Vídeo</span>
-            <span class="feature-tag">🎵 Áudio</span>
-            <span class="feature-tag">🔄 Conversão</span>
-            <span class="feature-tag">📷 Thumbnails</span>
+      <!-- Main Content -->
+      <div class="main-grid">
+        <!-- Config Card -->
+        <div class="glass-card">
+          <div class="glass-card-header">
+            <div class="glass-card-icon purple">⚙️</div>
+            <span class="glass-card-title">Configurações</span>
           </div>
-        </div>
-      </header>
 
-      <div class="content">
-        <!-- Painel de Configuração -->
-        <div class="config-panel">
-          <h2>⚙️ Configurações</h2>
-
-          <!-- URL Input -->
-          <div class="form-group">
-            <label for="url">URL do Vídeo</label>
+          <!-- URL -->
+          <div class="field">
+            <label class="field-label" for="url">URL do Vídeo</label>
             <input
               type="text"
               id="url"
-              placeholder="URL completa, youtu.be/ID, ID puro ou PLxxxx..."
-              class="input-field"
+              class="field-input"
+              placeholder="youtube.com/watch?v=... ou arraste um link"
             />
             <span class="field-hint"
-              >Aceita: URLs normais • youtu.be/ID • ID puro (11 caracteres) • Playlist ID
-              (PLxxxx)</span
+              >Suporta URLs, youtu.be, shorts, IDs puros (11 chars) e playlists PLxxxx.
+              <strong>Arraste um link!</strong></span
             >
-            <span id="url-error" class="url-error" style="display: none"></span>
-            <span id="playlist-warning" class="playlist-warning" style="display: none"
-              >⚠️ <strong>Playlists:</strong> Devem estar como PÚBLICA ou NÃO LISTADA para serem
-              acessadas</span
+            <span id="url-error" class="field-error" style="display: none"></span>
+            <span id="playlist-warning" class="field-warning" style="display: none"
+              >⚠️ Playlists devem ser <strong>Públicas</strong> ou
+              <strong>Não Listadas</strong></span
             >
           </div>
 
-          <!-- Tipo de Download -->
-          <div class="form-group">
-            <fieldset>
-              <legend>Tipo de Download</legend>
-
-              <div class="radio-group">
-                <label class="radio-option">
-                  <input type="radio" name="downloadType" value="video" checked />
-                  <span>📹 Vídeo</span>
-                </label>
-
-                <label class="radio-option">
-                  <input type="radio" name="downloadType" value="audio" />
-                  <span>🎵 Áudio</span>
-                </label>
-              </div>
-            </fieldset>
+          <!-- Type -->
+          <div class="field">
+            <span class="field-label">Tipo de Download</span>
+            <div class="segment-control" id="typeControl">
+              <label class="segment-btn active" data-value="video">
+                <input type="radio" name="downloadType" value="video" checked />
+                📹 Vídeo
+              </label>
+              <label class="segment-btn" data-value="audio">
+                <input type="radio" name="downloadType" value="audio" />
+                🎵 Áudio
+              </label>
+            </div>
           </div>
 
-          <!-- Qualidade de Vídeo -->
-          <div class="form-group" id="videoQualityGroup">
-            <label for="videoQuality">Qualidade de Vídeo</label>
-            <select id="videoQuality" class="select-field">
+          <!-- Video Quality -->
+          <div class="field" id="videoQualityGroup">
+            <label class="field-label" for="videoQuality">Qualidade</label>
+            <select id="videoQuality" class="field-select">
               <option value="best">Melhor disponível</option>
-              <option value="1080">1080p (Full HD)</option>
-              <option value="720">720p (HD)</option>
-              <option value="480">480p (SD)</option>
-              <option value="360">360p (Móvel)</option>
+              <option value="1080">1080p Full HD</option>
+              <option value="720">720p HD</option>
+              <option value="480">480p SD</option>
+              <option value="360">360p Móvel</option>
               <option value="worst">Pior disponível</option>
             </select>
           </div>
 
-          <!-- Formato de Vídeo -->
-          <div class="form-group" id="videoFormatGroup">
-            <label for="videoFormat">Formato de Vídeo</label>
-            <select id="videoFormat" class="select-field">
-              <option value="best">Original</option>
+          <!-- Video Format -->
+          <div class="field" id="videoFormatGroup">
+            <label class="field-label" for="videoFormat">Formato</label>
+            <select id="videoFormat" class="field-select">
+              <option value="best">Original (sem conversão)</option>
               <option value="mp4">MP4 (H.264)</option>
               <option value="webm">WebM (VP9)</option>
-              <option value="mkv">MKV (Múltiplos codecs)</option>
-              <option value="avi">AVI (Legado)</option>
-              <option value="flv">FLV (Flash)</option>
+              <option value="mkv">MKV</option>
+              <option value="avi">AVI</option>
+              <option value="flv">FLV</option>
             </select>
           </div>
 
-          <!-- Formato de Áudio -->
-          <div class="form-group" id="audioFormatGroup">
-            <label for="audioFormat">Formato de Áudio</label>
-            <select id="audioFormat" class="select-field">
+          <!-- Audio Format -->
+          <div class="field" id="audioFormatGroup">
+            <label class="field-label" for="audioFormat">Formato de Áudio</label>
+            <select id="audioFormat" class="field-select">
               <option value="mp3">MP3 (Compatível)</option>
               <option value="m4a">M4A (AAC)</option>
               <option value="opus">Opus (Qualidade)</option>
               <option value="vorbis">Vorbis (OGG)</option>
               <option value="wav">WAV (Sem compressão)</option>
-              <option value="aac">AAC (Sem container)</option>
+              <option value="aac">AAC</option>
             </select>
           </div>
 
-          <!-- Qualidade de Áudio -->
-          <div class="form-group" id="audioQualityGroup">
-            <label for="audioQuality">Qualidade de Áudio (Bitrate)</label>
-            <select id="audioQuality" class="select-field">
-              <option value="0">Melhor (VBR 0)</option>
+          <!-- Audio Quality -->
+          <div class="field" id="audioQualityGroup">
+            <label class="field-label" for="audioQuality">Bitrate</label>
+            <select id="audioQuality" class="field-select">
+              <option value="0">Melhor (VBR)</option>
               <option value="128" selected>128 kbps</option>
               <option value="192">192 kbps</option>
               <option value="256">256 kbps</option>
-              <option value="320">320 kbps (Máximo MP3)</option>
+              <option value="320">320 kbps (Máximo)</option>
             </select>
           </div>
 
-          <!-- Local de Salvamento -->
-          <div class="form-group">
-            <label for="outputPath">Local de Salvamento</label>
-            <input
-              type="text"
-              id="outputPath"
-              placeholder="yt-grabber/videos ou yt-grabber/audios"
-              class="input-field"
-              value="%USERPROFILE%\Downloads\yt-grabber\videos"
-            />
-            <span class="field-hint"
-              >Windows: Relativo a Downloads. Muda automaticamente com tipo de download</span
-            >
+          <!-- Output Path -->
+          <div class="field">
+            <label class="field-label" for="outputPath">Local de Salvamento</label>
+            <input type="text" id="outputPath" class="field-input" value="~\Downloads\yt-grabber" />
+            <span class="field-hint">Formato PowerShell (~ = pasta do usuário)</span>
           </div>
 
-          <!-- Nome do Arquivo -->
-          <div class="form-group">
-            <label for="outputTemplate">Template do Nome</label>
-            <select id="outputTemplate" class="select-field">
+          <!-- Template -->
+          <div class="field">
+            <label class="field-label" for="outputTemplate">Template do Nome</label>
+            <select id="outputTemplate" class="field-select">
               <option value="%(title)s.%(ext)s">Título</option>
               <option value="%(title)s [%(id)s].%(ext)s">Título + ID</option>
-              <option value="%(uploader)s - %(title)s.%(ext)s">Canal - Título</option>
-              <option value="%(playlist_index)s - %(title)s.%(ext)s">Index - Título</option>
-              <option value="%(upload_date)s - %(title)s.%(ext)s">Data - Título</option>
+              <option value="%(uploader)s - %(title)s.%(ext)s">Canal — Título</option>
+              <option value="%(playlist_index)s - %(title)s.%(ext)s">Index — Título</option>
+              <option value="%(upload_date)s - %(title)s.%(ext)s">Data — Título</option>
               <option value="custom">✏️ Personalizado</option>
             </select>
             <input
               type="text"
               id="customTemplate"
-              placeholder="Ex: %(title)s - %(uploader)s.%(ext)s"
-              class="input-field"
-              style="display: none; margin-top: var(--space-sm)"
+              class="field-input"
+              placeholder="%(title)s - %(uploader)s.%(ext)s"
+              style="display: none; margin-top: 0.5rem"
             />
             <span class="field-hint" id="templateHint" style="display: none"
               >Use: %(title)s, %(id)s, %(uploader)s, %(upload_date)s, %(ext)s</span
             >
           </div>
 
-          <!-- Opções Avançadas -->
-          <div class="form-group">
-            <label class="checkbox-label">
+          <div style="border-top: 1px solid rgba(255, 255, 255, 0.05); margin: 1.25rem 0"></div>
+
+          <!-- Checkboxes -->
+          <div class="field">
+            <label class="check-item">
               <input type="checkbox" id="embedThumbnail" />
-              <span>📸 Embutir thumbnail no arquivo (requer ffmpeg)</span>
+              <span class="check-box"></span>
+              <span class="check-text">📸 Embutir thumbnail (requer ffmpeg)</span>
             </label>
           </div>
 
-          <div class="form-group">
-            <label class="checkbox-label">
+          <div class="field">
+            <label class="check-item">
               <input type="checkbox" id="noOverwrites" checked />
-              <span>🛡️ Não sobrescrever arquivos existentes</span>
+              <span class="check-box"></span>
+              <span class="check-text">🛡️ Não sobrescrever existentes</span>
             </label>
           </div>
 
-          <div class="form-group">
-            <label for="jsRuntime">⚙️ JavaScript Runtime</label>
-            <select id="jsRuntime" class="select-field">
-              <option value="none">Nenhuma (padrão)</option>
-              <option value="deno">Deno (recomendado, 2.0+)</option>
-              <option value="node">Node.js (20+)</option>
-              <option value="bun">Bun (1.0.31+)</option>
-              <option value="quickjs">QuickJS (2023-12-9+)</option>
+          <div class="field">
+            <label class="field-label" for="jsRuntime">⚙️ JS Runtime</label>
+            <select id="jsRuntime" class="field-select">
+              <option value="node" selected>Node.js (mais comum)</option>
+              <option value="deno">Deno</option>
+              <option value="none">Nenhuma (pode causar erro 403)</option>
+              <option value="bun">Bun</option>
+              <option value="quickjs">QuickJS</option>
             </select>
             <span class="field-hint"
-              >YouTube usa desafios JavaScript para proteger vídeos. Se escolher uma runtime,
-              garanta que está instalada e no PATH. Se não sabe o que é isso, deixe como "padrão" —
-              vai funcionar na maioria dos casos.</span
+              >⚠️ <strong>Necessário!</strong> Sem um runtime, o YouTube pode bloquear com erro 403.
+              Se receber erro 403 mesmo com runtime, ative os <strong>cookies</strong> abaixo e siga
+              o passo a passo.</span
             >
           </div>
 
-          <div class="form-group">
-            <label class="checkbox-label">
+          <div class="field">
+            <label class="check-item">
               <input type="checkbox" id="useCookies" />
-              <span>🍪 Usar cookies de autenticação</span>
+              <span class="check-box"></span>
+              <span class="check-text">🍪 Cookies de autenticação</span>
             </label>
             <span class="field-hint"
-              >⚠️ <strong>Avançado:</strong> Para vídeos com restrição de idade ou acesso privado.
-              Requer arquivo cookie.txt na mesma pasta onde você rodará o comando. Pode comprometer
-              sua conta!</span
+              >Se você recebeu <strong>403 Forbidden</strong>, ative esta opção e siga o passo a
+              passo abaixo. Funciona mesmo em vídeos sem restrição de idade.</span
             >
-            <div id="cookiesInfo" class="info-box" style="display: none; margin-top: 1rem">
-              <h4>🍪 Como usar cookies (Processo Avançado)</h4>
+            <div id="cookiesInfo" class="info-box" style="display: none; margin-top: 0.75rem">
+              <h4>🍪 Como usar cookies</h4>
               <ol>
                 <li>
                   Instale a extensão
@@ -244,113 +236,86 @@
                     href="https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc"
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label="Instalar extensão Get cookies.txt LOCALLY no Chrome Web Store"
                     >"Get cookies.txt LOCALLY"</a
                   >
-                  no Chrome/Chromium
                 </li>
-                <li>Acesse YouTube e faça login com sua conta</li>
-                <li>Clique na extensão → "Export" para baixar o arquivo de cookies</li>
-                <li><strong>Renomeie o arquivo para "cookie.txt"</strong> (exatamente assim)</li>
-                <li>Abra o terminal <strong>na mesma pasta</strong> onde o cookie.txt está</li>
-                <li>Cole e execute o comando gerado</li>
+                <li>Faça login no YouTube</li>
+                <li>Clique na extensão → Export</li>
+                <li>Renomeie para <code>cookie.txt</code></li>
+                <li>Abra o terminal na mesma pasta</li>
+                <li>Execute o comando gerado</li>
               </ol>
-              <p>
-                📖
-                <a
-                  href="https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Acessar documentação oficial de como usar cookies no yt-dlp"
-                  >Documentação oficial</a
-                >
-                |
-                <a
-                  href="https://www.youtube.com/watch?v=DsS1jCDZGek"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Acessar tutorial em vídeo sobre como usar cookies no yt-dlp"
-                  >Tutorial em vídeo</a
-                >
-              </p>
-              <p>
-                <strong>⚠️ Cuidado:</strong> Compartilhar cookies é como compartilhar sua senha!
-              </p>
-              <p>
-                <strong>💡 Dica:</strong> Se estiver usando cookies, você provavelmente vai precisar
-                definir um <strong>JavaScript Runtime</strong> também para resolver desafios de
-                proteção do YouTube.
-              </p>
+              <p>⚠️ Cookies = acesso à sua conta. Não compartilhe!</p>
             </div>
           </div>
         </div>
 
-        <!-- Painel de Preview -->
-        <div class="preview-panel">
-          <h2>📝 Preview do Script</h2>
+        <!-- Preview Card -->
+        <div class="glass-card" style="position: sticky; top: 1.5rem">
+          <div class="glass-card-header">
+            <div class="glass-card-icon blue">📝</div>
+            <span class="glass-card-title">Preview do Comando</span>
+          </div>
 
-          <div class="preview-container">
-            <div class="preview-content" id="scriptPreview">
-              yt-dlp "https://www.youtube.com/watch?v=..."
+          <!-- Terminal -->
+          <div class="preview-terminal">
+            <div class="terminal-bar">
+              <span class="terminal-dot red"></span>
+              <span class="terminal-dot yellow"></span>
+              <span class="terminal-dot green"></span>
+              <span class="terminal-title">terminal — yt-dlp</span>
+            </div>
+            <div class="terminal-body" id="scriptPreview">
+              <span class="cursor"></span>
             </div>
           </div>
 
-          <div class="button-group">
-            <button id="copyBtn" class="btn btn-copy">📋 Copiar para Clipboard</button>
-            <button id="resetBtn" class="btn btn-reset">🔄 Redefinir</button>
+          <!-- Buttons -->
+          <div class="btn-row">
+            <button id="copyBtn" class="btn btn-primary" disabled>📋 Copiar Comando</button>
+            <button id="resetBtn" class="btn btn-ghost">🔄 Resetar</button>
           </div>
 
-          <div class="info-box">
-            <h3>💡 Como usar:</h3>
+          <!-- Feedback -->
+          <div class="feedback" id="feedback" style="display: none"></div>
+
+          <!-- How to use -->
+          <div class="info-box" style="margin-top: 1rem">
+            <h3>💡 Como usar</h3>
             <ol>
-              <li>Configure as opções desejadas</li>
-              <li>Veja o preview do comando gerado</li>
-              <li>Clique em "Copiar" para copiar para o clipboard</li>
-              <li>Cole e execute no seu terminal com yt-dlp instalado</li>
+              <li>Configure as opções ao lado</li>
+              <li>O comando aparece aqui em tempo real</li>
+              <li>Copie e cole no seu terminal</li>
             </ol>
           </div>
-
-          <div class="feedback" id="feedback" style="display: none"></div>
         </div>
       </div>
     </div>
 
     <!-- Footer -->
-    <footer class="footer">
-      <div class="footer-content">
-        <div class="footer-section">
-          <h4>Ferramentas Necessárias</h4>
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-col">
+          <h4>Ferramentas</h4>
           <ul>
             <li>
-              <a
-                href="https://github.com/yt-dlp/yt-dlp"
-                rel="noopener noreferrer"
-                aria-label="Baixar yt-dlp no GitHub"
-                target="_blank"
-                >📥 <span>yt-dlp</span></a
+              <a href="https://github.com/yt-dlp/yt-dlp" target="_blank" rel="noopener noreferrer"
+                >📥 yt-dlp</a
               >
-              - Download e instale via GitHub
             </li>
             <li>
-              <a
-                href="https://ffmpeg.org/download.html"
-                rel="noopener noreferrer"
-                aria-label="Baixar FFmpeg no site oficial"
-                target="_blank"
-                >🎬 <span>FFmpeg</span></a
+              <a href="https://ffmpeg.org/download.html" target="_blank" rel="noopener noreferrer"
+                >🎬 FFmpeg</a
               >
-              - Download oficial
             </li>
           </ul>
         </div>
-        <div class="footer-section">
-          <h4>Como Usar</h4>
-          <p>Gere o comando acima, copie e execute no seu terminal com yt-dlp instalado.</p>
+        <div class="footer-col">
+          <h4>Como Funciona</h4>
+          <p>Monte o comando, copie e execute no terminal com yt-dlp instalado.</p>
         </div>
       </div>
-      <div class="footer-bottom">
-        <p>&copy; <span id="current-year"></span> YT Grabber - Desenvolvido com ❤️</p>
-      </div>
+      <div class="footer-bottom">&copy; <span id="current-year"></span> YT Grabber</div>
     </footer>
 
     <script src="src/script.js"></script>
