@@ -54,6 +54,9 @@ class ScriptBuilder {
     this.useCookies = document.getElementById('useCookies')
     this.cookiesInfo = document.getElementById('cookiesInfo')
     this.jsRuntime = document.getElementById('jsRuntime')
+    this.playlistLimitGroup = document.getElementById('playlistLimitGroup')
+    this.playlistLimit = document.getElementById('playlistLimit')
+    this.playlistLimitError = document.getElementById('playlistLimit-error')
 
     this.preview = document.getElementById('scriptPreview')
     this.copyBtn = document.getElementById('copyBtn')
@@ -89,6 +92,10 @@ class ScriptBuilder {
     this.embedThumbnail.addEventListener('change', () => this.updatePreview())
     this.noOverwrites.addEventListener('change', () => this.updatePreview())
     this.jsRuntime.addEventListener('change', () => this.updatePreview())
+    this.playlistLimit.addEventListener('input', () => {
+      this.validatePlaylistLimit()
+      this.updatePreview()
+    })
     this.useCookies.addEventListener('change', () => {
       this.cookiesInfo.style.display = this.useCookies.checked ? 'block' : 'none'
       this.updatePreview()
@@ -173,6 +180,24 @@ class ScriptBuilder {
     this.templateHint.style.display = isCustom ? '' : 'none'
   }
 
+  // ===== VALIDATE PLAYLIST LIMIT =====
+  validatePlaylistLimit() {
+    const val = this.playlistLimit.value.trim()
+    if (!val) {
+      this.playlistLimitError.style.display = 'none'
+      return true
+    }
+    // Valid: digits, colons, commas — e.g. 1:10, 1,3,5, 5:, :10, 1:5,10,15:20
+    const pattern = /^[0-9]+(:[0-9]*)?(,[0-9]+(:[0-9]*)?)*$/
+    if (!pattern.test(val)) {
+      this.playlistLimitError.textContent = '❌ Formato inválido. Use: 1:10, 1,3,5 ou 5:'
+      this.playlistLimitError.style.display = 'block'
+      return false
+    }
+    this.playlistLimitError.style.display = 'none'
+    return true
+  }
+
   getType() {
     return Array.from(this.downloadType).find((r) => r.checked).value
   }
@@ -221,6 +246,10 @@ class ScriptBuilder {
     if (this.embedThumbnail.checked) args.push('--embed-thumbnail')
     if (this.noOverwrites.checked) args.push('-w')
 
+    if (this.playlistLimit.value.trim()) {
+      args.push(`-I "${this.playlistLimit.value.trim()}"`)
+    }
+
     const rt = this.jsRuntime.value
     if (rt !== 'none') args.push(`--js-runtimes ${rt}`)
     if (this.useCookies.checked) args.push('--cookies cookie.txt')
@@ -260,6 +289,7 @@ class ScriptBuilder {
     const u = this.normalizeUrl(v)
     if (!u.valid) return false
     if (!this.outputPath.value.trim()) return false
+    if (this.playlistLimit.value.trim() && !this.validatePlaylistLimit()) return false
     return true
   }
 
@@ -291,6 +321,7 @@ class ScriptBuilder {
     }
 
     this.playlistWarning.style.display = isPlaylist ? 'block' : 'none'
+    this.playlistLimitGroup.style.display = isPlaylist ? '' : 'none'
 
     if (this.customOption) {
       this.customOption.disabled = isPlaylist
@@ -396,6 +427,7 @@ class ScriptBuilder {
       jsRuntime: this.jsRuntime.value,
       noOverwrites: this.noOverwrites.checked,
       useCookies: this.useCookies.checked,
+      playlistLimit: this.playlistLimit.value,
     }
     if (type === 'video') {
       settings.videoQuality = this.videoQuality.value
@@ -418,6 +450,7 @@ class ScriptBuilder {
       jsRuntime: 'node',
       noOverwrites: true,
       useCookies: false,
+      playlistLimit: '',
     }
     if (type === 'video') {
       defaults.videoQuality = 'best'
@@ -444,6 +477,7 @@ class ScriptBuilder {
     this.noOverwrites.checked = s.noOverwrites
     this.useCookies.checked = s.useCookies
     this.cookiesInfo.style.display = s.useCookies ? 'block' : 'none'
+    this.playlistLimit.value = s.playlistLimit || ''
 
     if (type === 'video') {
       this.videoQuality.value = s.videoQuality
@@ -528,6 +562,7 @@ class ScriptBuilder {
     this.useCookies.checked = false
     this.cookiesInfo.style.display = 'none'
     this.jsRuntime.value = 'node'
+    this.playlistLimit.value = ''
 
     this._persistentMsg = null
     this._persistentType = null

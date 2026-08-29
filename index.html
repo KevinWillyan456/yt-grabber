@@ -184,6 +184,22 @@
             >
           </div>
 
+          <!-- Playlist Limit -->
+          <div class="field" id="playlistLimitGroup" style="display: none">
+            <label class="field-label" for="playlistLimit">Itens da Playlist</label>
+            <input
+              type="text"
+              id="playlistLimit"
+              class="field-input"
+              placeholder="Ex: 1:10 ou 1,3,5 ou 5:"
+            />
+            <span class="field-hint"
+              >Formato: <code>1:10</code> (primeiros 10), <code>1,3,5</code> (específicos),
+              <code>5:</code> (a partir do 5°)</span
+            >
+            <span id="playlistLimit-error" class="field-error" style="display: none"></span>
+          </div>
+
           <div style="border-top: 1px solid rgba(255, 255, 255, 0.05); margin: 1.25rem 0"></div>
 
           <!-- Checkboxes -->
