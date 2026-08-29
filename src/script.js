@@ -103,7 +103,7 @@ class ScriptBuilder {
 
     // Buttons
     this.copyBtn.addEventListener('click', () => this.copyCommand())
-    this.resetBtn.addEventListener('click', () => this.resetAll())
+    this.resetBtn.addEventListener('click', () => this.showResetModal())
   }
 
   // ===== SEGMENT CONTROL =====
@@ -535,6 +535,28 @@ class ScriptBuilder {
         document.body.removeChild(ta)
         onSuccess()
       })
+  }
+
+  // ===== RESET MODAL =====
+  showResetModal() {
+    const modal = document.getElementById('resetModal')
+    const cancelBtn = document.getElementById('modalCancelBtn')
+    const confirmBtn = document.getElementById('modalConfirmBtn')
+
+    modal.style.display = 'flex'
+
+    const close = () => {
+      modal.style.display = 'none'
+    }
+
+    cancelBtn.onclick = close
+    modal.onclick = (e) => {
+      if (e.target === modal) close()
+    }
+    confirmBtn.onclick = () => {
+      close()
+      this.resetAll()
+    }
   }
 
   // ===== RESET =====

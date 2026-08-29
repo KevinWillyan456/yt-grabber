@@ -339,6 +339,22 @@
       <div class="footer-bottom">&copy; <span id="current-year"></span> YT Grabber</div>
     </footer>
 
+    <!-- Reset Confirmation Modal -->
+    <div class="modal-overlay" id="resetModal" style="display: none">
+      <div class="modal">
+        <div class="modal-icon">⚠️</div>
+        <h3 class="modal-title">Confirmar Reset</h3>
+        <p class="modal-text">
+          Todos as configurações serão apagadas e o formulário voltará aos valores padrão. Deseja
+          continuar?
+        </p>
+        <div class="modal-btn-row">
+          <button id="modalCancelBtn" class="btn btn-ghost">Cancelar</button>
+          <button id="modalConfirmBtn" class="btn btn-danger">Sim, Resetar</button>
+        </div>
+      </div>
+    </div>
+
     <script src="src/script.js"></script>
   </body>
 </html>
