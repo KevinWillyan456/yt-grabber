@@ -1,58 +1,64 @@
+<div align="center">
+
 # 🎬 YT Grabber
 
-> **Construtor Visual de Comandos para yt-dlp**
+**Construtor Visual de Comandos para yt-dlp**
 
-Um gerador interativo e intuitivo de comandos `yt-dlp` para download e conversão de vídeos do YouTube, sem precisar decorar sintaxe complexa!
+[![HTML5](https://img.shields.io/badge/HTML5-%23E34F26?logo=html5&style=for-the-badge)](https://developer.mozilla.org/pt-BR/docs/Web/HTML)
+[![CSS3](https://img.shields.io/badge/CSS3-Glassmorphism-%231572B6?logo=css3&style=for-the-badge)](https://developer.mozilla.org/pt-BR/docs/Web/CSS)
+[![JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-%23F7DF1E?logo=javascript&style=for-the-badge)](https://developer.mozilla.org/pt-BR/docs/Web/JavaScript)
+[![Prettier](https://img.shields.io/badge/Prettier-Formatado-%23F7B93E?logo=prettier&style=for-the-badge)](https://prettier.io)
 
----
+<hr />
 
-## ✨ Características
+**Interface web para montar comandos `yt-dlp` de forma visual e intuitiva.** Configure, copie e cole no terminal. Sem precisar decorar sintaxe.
 
-- 📹 **Download de Vídeos** - Selecione qualidade e formato
-- 🎵 **Extração de Áudio** - Converta vídeos em MP3, M4A, OPUS e mais
-- 🔄 **Conversão de Formatos** - Converta entre MP4, WebM, MKV, AVI, FLV
-- 📷 **Gerenciamento de Thumbnails** - Baixe e embuta capas de vídeo
-- 📝 **Metadados** - Salve informações JSON do vídeo
-- ⚡ **Preview em Tempo Real** - Veja o comando enquanto configura
-- 🎯 **Validação Inteligente** - Detecta e valida URLs automaticamente
-- 📋 **Copiar com Um Clique** - Copie o comando direto para o clipboard
+</div>
 
 ---
 
-## 🚀 Começando
+## ✨ Funcionalidades
 
-### Dependências Obrigatórias
+<details open>
+<summary><strong>📋 Recursos Principais</strong></summary>
+<br />
 
-Antes de usar o YT Grabber, você precisa instalar:
+| Recurso                      | Descrição                                                          |
+| :--------------------------- | :----------------------------------------------------------------- |
+| **📹 Download de Vídeo**     | Selecione qualidade (1080p, 720p, etc.) e formato (MP4, WebM, MKV) |
+| **🎵 Extração de Áudio**     | Converta para MP3, M4A, Opus, Vorbis, WAV, AAC                     |
+| **🔄 Conversão de Formato**  | Re-encode com `--recode-video` via FFmpeg                          |
+| **📷 Embutir Thumbnail**     | Adicione a capa do vídeo ao arquivo final                          |
+| **⚙️ JS Runtime**            | Suporte a Node.js, Deno, Bun e QuickJS                             |
+| **🍪 Autenticação**          | Cookies para vídeos com restrição de idade                         |
+| **⚡ Preview em Tempo Real** | Syntax highlighting no terminal estilo VS Code                     |
+| **💾 Persistência**          | Configurações salvas no localStorage (vídeo/áudio separados)       |
+| **📎 Drag & Drop**           | Arraste links diretamente para o campo de URL                      |
+| **🔄 Resetar**               | Limpa formulário e configurações salvas com um clique              |
 
-#### 1️⃣ **yt-dlp**
+</details>
 
-O coração da ferramenta - faz o download real dos vídeos.
+---
 
-**Windows:**
-Siga as instruções no [GitHub do yt-dlp](https://github.com/yt-dlp/yt-dlp#installation).
+## 🚀 Pré-requisitos
 
-**Linux/macOS:**
+<details open>
+<summary><strong>📦 Dependências Obrigatórias</strong></summary>
+<br />
 
-```bash
-pip install yt-dlp
-```
+### 1. yt-dlp
 
-**Ou via Homebrew (macOS):**
+O motor de download. Siga as instruções de instalação oficial:
 
-```bash
-brew install yt-dlp
-```
+- **Windows:** [GitHub — yt-dlp](https://github.com/yt-dlp/yt-dlp#windows)
+- **macOS / Linux:** [GitHub — yt-dlp](https://github.com/yt-dlp/yt-dlp#installation)
 
-#### 2️⃣ **FFmpeg**
+### 2. FFmpeg
 
 Necessário para conversão de formatos e extração de áudio.
 
-**Linux (Ubuntu/Debian):**
-
-```bash
-sudo apt-get install ffmpeg
-```
+**Windows:**
+Baixe em [ffmpeg.org](https://ffmpeg.org/download.html) e adicione ao PATH.
 
 **macOS:**
 
@@ -60,123 +66,250 @@ sudo apt-get install ffmpeg
 brew install ffmpeg
 ```
 
-**Windows:**
-Baixe do [site oficial](https://ffmpeg.org/download.html) e adicione ao PATH.
+**Linux:**
 
-#### ⚠️ **Adicionar ao PATH**
+```bash
+sudo apt install ffmpeg
+```
 
-Após instalar, você **DEVE** adicionar ambos os programas ao PATH do seu sistema para acessá-los pelo terminal:
+### 3. JavaScript Runtime (recomendado)
 
-**Windows:**
+O YouTube usa desafios JS para proteger vídeos. Sem um runtime, downloads podem falhar com erro **403 Forbidden**.
 
-1. Abra "Variáveis de Ambiente"
-2. Vá em "Editar as variáveis de ambiente do sistema"
-3. Clique em "Variáveis de Ambiente"
-4. Edite a variável `Path` e adicione os caminhos de instalação
+**Node.js** (recomendado — já vem com a maioria dos setups):
+Baixe em [nodejs.org](https://nodejs.org)
 
-**macOS/Linux:**
-Geralmente já vem no PATH após instalar via package manager.
+**Deno** (alternativa):
+
+```powershell
+irm https://deno.land/install.ps1 | iex
+```
+
+> ⚠️ Após instalar, reinicie o terminal e selecione o runtime no formulário.
+
+</details>
 
 ---
 
 ## 📖 Como Usar
 
-1. **Abra `index.html`** em seu navegador
-2. **Cole a URL** do vídeo do YouTube (aceita múltiplos formatos)
-3. **Escolha o tipo** de download (vídeo ou áudio)
-4. **Configure as opções** desejadas (qualidade, formato, etc.)
-5. **Clique em "Copiar"** para copiar o comando
-6. **Cole no terminal** e execute
+<details open>
+<summary><strong>🎯 Passo a Passo</strong></summary>
+<br />
 
-### Formatos de URL Aceitos
+1. Abra `index.html` no navegador
+2. Cole a URL do vídeo no campo de entrada
+3. Escolha o tipo de download (vídeo ou áudio)
+4. Configure qualidade, formato e opções
+5. Clique em **📋 Copiar Comando**
+6. Cole no terminal e execute
 
-- ✅ `https://www.youtube.com/watch?v=dQw4w9WgXcQ`
-- ✅ `https://youtu.be/dQw4w9WgXcQ`
-- ✅ `dQw4w9WgXcQ` (apenas o ID)
-- ✅ `https://www.youtube.com/playlist?list=PLxxxx`
-- ✅ `PLxxxx` (apenas o ID da playlist)
-
-### 📋 Opções Disponíveis
-
-| Opção                  | Descrição                                  |
-| ---------------------- | ------------------------------------------ |
-| 📹 Tipo de Download    | Escolha entre Vídeo ou Áudio               |
-| 🎬 Qualidade de Vídeo  | Melhor, 1080p, 720p, 480p, 360p, Pior      |
-| 🎞️ Formato de Vídeo    | MP4, WebM, MKV, AVI, FLV                   |
-| 🎵 Formato de Áudio    | MP3, M4A, OPUS, Vorbis, WAV, AAC           |
-| 📊 Qualidade de Áudio  | 0 (VBR), 128, 192, 256, 320 kbps           |
-| 💾 Local de Salvamento | Personalize onde os arquivos serão salvos  |
-| 📝 Nome do Arquivo     | Use variáveis: `%(title)s`, `%(id)s`, etc. |
-| 📷 Incluir Thumbnail   | Baixe a capa do vídeo                      |
-| 🖼️ Embutir Thumbnail   | Adicione a capa ao arquivo de áudio        |
-| 📄 Metadados JSON      | Salve informações do vídeo                 |
-| 🔒 Não Sobrescrever    | Proteja arquivos existentes                |
+</details>
 
 ---
 
-## 💡 Dicas
+## 🔗 Formatos de URL Aceitos
 
-### Para Playlists
-
-⚠️ **Importante:** A playlist deve estar como **PÚBLICA** ou **NÃO LISTADA** para ser acessada pelo yt-dlp.
-
-### Variáveis de Nome de Arquivo
-
-Use no campo "Nome do Arquivo":
-
-- `%(title)s` - Título do vídeo
-- `%(id)s` - ID do vídeo
-- `%(ext)s` - Extensão do arquivo
-- `%(uploader)s` - Nome do uploader
-- `%(upload_date)s` - Data de upload
+| Formato       | Exemplo                            | Descrição                   |
+| :------------ | :--------------------------------- | :-------------------------- |
+| URL completa  | `youtube.com/watch?v=dQw4w9WgXcQ`  | Formato padrão              |
+| URL curta     | `youtu.be/dQw4w9WgXcQ`             | Encurtada                   |
+| ID puro       | `dQw4w9WgXcQ`                      | Apenas o ID (11 caracteres) |
+| Playlist      | `youtube.com/playlist?list=PLxxxx` | Playlist completa           |
+| Playlist ID   | `PLxxxx`                           | Apenas o ID da playlist     |
+| Shorts        | `youtube.com/shorts/ID`            | Vídeos curtos               |
+| Mix/Rádio     | `watch?v=ID&list=RDxxxx`           | Tratado como vídeo único    |
+| Sem protocolo | `youtube.com/watch?v=ID`           | Auto-detecta `https://`     |
 
 ---
 
-## 🎯 Exemplos de Comandos Gerados
+## 📋 Opções Disponíveis
 
-### Exemplo 1: Download de vídeo em 720p
+<details open>
+<summary><strong>📹 Modo Vídeo</strong></summary>
+<br />
+
+| Opção     | Valores                               | Flag                                          |
+| :-------- | :------------------------------------ | :-------------------------------------------- |
+| Qualidade | Melhor, 1080p, 720p, 480p, 360p, Pior | `-f "bestvideo[height<=QUAL]+bestaudio/best"` |
+| Formato   | Original, MP4, WebM, MKV, AVI, FLV    | `--recode-video FORMATO`                      |
+
+</details>
+
+<details open>
+<summary><strong>🎵 Modo Áudio</strong></summary>
+<br />
+
+| Opção             | Valores                               | Flag                     |
+| :---------------- | :------------------------------------ | :----------------------- |
+| Formato           | MP3, M4A, Opus, Vorbis, WAV, AAC      | `--audio-format FORMATO` |
+| Bitrate           | VBR (melhor), 128, 192, 256, 320 kbps | `--audio-quality VALOR`  |
+| Embutir Thumbnail | Sempre ativo                          | `--embed-thumbnail`      |
+
+</details>
+
+<details open>
+<summary><strong>⚙️ Geral</strong></summary>
+<br />
+
+| Opção               | Padrão                   | Flag                    |
+| :------------------ | :----------------------- | :---------------------- |
+| Local de salvamento | `~\Downloads\yt-grabber` | `-P "CAMINHO"`          |
+| Template do nome    | `%(title)s.%(ext)s`      | `-o "TEMPLATE"`         |
+| Não sobrescrever    | Ativado                  | `-w`                    |
+| JS Runtime          | Node.js                  | `--js-runtimes RUNTIME` |
+| Cookies             | Desativado               | `--cookies cookie.txt`  |
+
+</details>
+
+---
+
+## 🎯 Exemplos de Comando
+
+<details>
+<summary><strong>📹 Vídeo em 720p</strong></summary>
+<br />
 
 ```bash
-yt-dlp -f "bestvideo[height<=720]+bestaudio/best" --recode-video mp4 -P "%USERPROFILE%\Downloads\yt-grabber\videos" -o "%(title)s.%(ext)s" "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+yt-dlp -f "bestvideo[height<=720]+bestaudio/best" -P "~\Downloads\yt-grabber" -o "%(title)s.%(ext)s" -w --js-runtimes node "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 ```
 
-### Exemplo 2: Extrair áudio em MP3 320kbps
+</details>
+
+<details>
+<summary><strong>🎵 Áudio em MP3 320kbps</strong></summary>
+<br />
 
 ```bash
-yt-dlp -f "bestaudio/best" -x --audio-format mp3 --audio-quality 320 -P "%USERPROFILE%\Downloads\yt-grabber\audios" -o "%(title)s.%(ext)s" "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+yt-dlp -f "bestaudio/best" -x --audio-format mp3 --audio-quality 320 -P "~\Downloads\yt-grabber" -o "%(title)s.%(ext)s" --embed-thumbnail -w --js-runtimes node "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 ```
+
+</details>
+
+<details>
+<summary><strong>🍪 Com cookies (vídeo restrito)</strong></summary>
+<br />
+
+```bash
+yt-dlp -f "bestvideo*+bestaudio/best" -P "~\Downloads\yt-grabber" -o "%(title)s.%(ext)s" -w --js-runtimes node --cookies cookie.txt "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+```
+
+</details>
+
+---
+
+## 🛡️ Solução de Problemas
+
+<details>
+<summary><strong>❌ Erro 403 Forbidden</strong></summary>
+<br />
+
+Causado pela falta de JavaScript runtime ou autenticação.
+
+**Passo 1:** Verifique se tem um runtime selecionado — Node.js é o mais comum.
+
+**Passo 2:** Se persistir, ative a opção **🍪 Cookies** e siga o passo a passo:
+
+1. Instale a extensão [Get cookies.txt LOCALLY](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc)
+2. Faça login no YouTube
+3. Exporte os cookies e salve como `cookie.txt`
+4. Execute o comando gerado na mesma pasta do arquivo
+
+</details>
+
+<details>
+<summary><strong>❌ Vídeo não baixa</strong></summary>
+<br />
+
+- Verifique se o yt-dlp e ffmpeg estão no PATH
+- Teste no terminal: `yt-dlp --version`
+- Teste com outro vídeo para isolar o problema
+- Verifique se o vídeo não está restrito por idade
+
+</details>
+
+<details>
+<summary><strong>⚠️ Aviso: No supported JavaScript runtime</strong></summary>
+<br />
+
+O yt-dlp precisa de um runtime JS para resolver desafios do YouTube.
+
+- **Node.js**: [nodejs.org](https://nodejs.org)
+- **Deno**: `irm https://deno.land/install.ps1 | iex`
+
+Reinicie o terminal após instalar.
+
+</details>
 
 ---
 
 ## 🖥️ Requisitos
 
-- **Navegador Moderno**: Chrome, Firefox, Safari, Edge
-- **yt-dlp**: Instalado e no PATH
-- **FFmpeg**: Instalado e no PATH (para conversão de áudio/vídeo)
+| Requisito | Versão                        | Obrigatório      |
+| :-------- | :---------------------------- | :--------------- |
+| Navegador | Chrome, Firefox, Safari, Edge | ✅               |
+| yt-dlp    | Última versão                 | ✅               |
+| FFmpeg    | Última versão                 | ✅ (conversão)   |
+| Node.js   | Última versão                 | ⚠️ (recomendado) |
 
 ---
 
-## 📝 Notas Importantes
+## 📁 Estrutura do Projeto
 
-- ⚠️ Respeite os direitos autorais ao baixar conteúdo
-- ⚠️ Verifique se está autorizado a baixar o conteúdo
-- ⚠️ O YT Grabber é apenas uma interface para yt-dlp
-- ⚠️ yt-dlp pode não funcionar se o YouTube bloquear sua conexão
+```plaintext
+yt-grabber/
+├── index.html          # 📄 Página principal
+├── src/
+│   ├── style.css       # 🎨 Estilos (Glassmorphism Neon)
+│   └── script.js       # ⚙️ Lógica do builder
+├── favicon.png         # 🖼️ Ícone
+├── package.json        # 📦 Configuração do projeto
+├── pnpm-lock.yaml      # 📦 Lock de dependências
+├── .prettierrc         # ✨ Configuração do Prettier
+├── .prettierignore     # 🚫 Arquivos ignorados pelo Prettier
+├── LICENSE             # 📄 Licença MIT
+└── README.md           # 📖 Este arquivo
+```
 
 ---
 
-## 🔗 Links Úteis
+## 🔧 Desenvolvimento
 
-- 🌐 [yt-dlp GitHub](https://github.com/yt-dlp/yt-dlp)
-- 🌐 [FFmpeg Official](https://ffmpeg.org)
-- 📚 [yt-dlp Documentação](https://github.com/yt-dlp/yt-dlp#readme)
+### Comandos
+
+```bash
+# Formatar código
+pnpm format
+
+# Verificar formatação
+pnpm format:check
+
+# Ou diretamente
+pnpm dlx prettier . --write
+pnpm dlx prettier . --check
+```
+
+### Tech Stack
+
+| Camada            | Tecnologia         | Propósito                                 |
+| :---------------- | :----------------- | :---------------------------------------- |
+| 📄 **Estrutura**  | HTML5              | Semântica e acessibilidade                |
+| 🎨 **Estilo**     | CSS3               | Glassmorphism Neon, animações, responsivo |
+| ⚙️ **Lógica**     | JavaScript vanilla | Builder, validação, localStorage          |
+| ✨ **Formatação** | Prettier           | Código consistente                        |
 
 ---
 
 ## 📄 Licença
 
-Este projeto é de código aberto e livre para uso pessoal.
+[MIT](LICENSE) © 2026 Kevin Souza
 
 ---
 
-> Desenvolvido com ❤️ para facilitar downloads do YouTube
+<div align="center">
+
+### 💙 Feito com dedicação para facilitar downloads do YouTube
+
+[⬆ Voltar ao topo](#-yt-grabber)
+
+</div>
